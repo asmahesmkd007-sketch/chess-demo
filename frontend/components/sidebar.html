@@ -4,7 +4,7 @@
 <div id="global-mobile-overlay"
   style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:900; backdrop-filter:blur(4px);"
   onclick="document.getElementById('sidebar').classList.remove('open'); this.style.display='none';"></div>
-<button class="global-mobile-menu-btn"
+<button class="global-mobile-menu-btn" aria-label="Toggle Menu"
   onclick="document.getElementById('sidebar').classList.toggle('open'); document.getElementById('global-mobile-overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';"><i
     class="fa-solid fa-bars"></i></button>
 <aside class="sidebar" id="sidebar">
@@ -16,7 +16,7 @@
     <div class="tagline"></div>
   </div>
   <div class="sidebar-user">
-    <div class="sidebar-avatar" id="sb-avatar" onclick="window.location='/pages/account.html'" style="cursor:pointer">P
+    <div class="sidebar-avatar" id="sb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P
     </div>
     <div class="sidebar-user-info">
       <div class="name" id="sb-username">Loading...</div>

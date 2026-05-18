@@ -244,7 +244,7 @@
 .rc-counter { font-family:var(--font-display); font-size:11px; color:var(--text-muted); min-width:44px; text-align:center; font-weight:700; }
 .rc-slider-wrap { flex:1; min-width:80px; display:flex; align-items:center; gap:6px; }
 .rc-slider {
-  -webkit-appearance:none; width:100%; height:3px;
+  -webkit-appearance:none; appearance: none; width:100%; height:3px;
   background:var(--border-subtle); border-radius:3px; outline:none; cursor:pointer;
 }
 .rc-slider::-webkit-slider-thumb {
@@ -352,7 +352,7 @@
       <div class="topbar-left"><div class="page-title">MATCH HISTORY</div></div>
       <div class="topbar-right">
         <div class="topbar-player-id" id="tb-pid">...</div>
-        <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
+        <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
       </div>
     </div>
     <div class="page-content">
@@ -379,10 +379,10 @@
 
       <!-- CATEGORY TABS -->
       <div class="cat-tabs">
-        <div class="cat-tab active" data-cat="all"          onclick="switchCat(this)"><i class="fa-solid fa-list"></i> All Games</div>
-        <div class="cat-tab"        data-cat="paid_tr"      onclick="switchCat(this)"><i class="fa-solid fa-trophy"></i> Paid TR</div>
-        <div class="cat-tab"        data-cat="free_tr"      onclick="switchCat(this)"><i class="fa-solid fa-chess-knight"></i> Free TR</div>
-        <div class="cat-tab"        data-cat="random_rooms" onclick="switchCat(this)"><i class="fa-solid fa-dice"></i> Random &amp; Rooms</div>
+        <div class="cat-tab active" role="button" tabindex="0" data-cat="all"          onclick="switchCat(this)"><i class="fa-solid fa-list"></i> All Games</div>
+        <div class="cat-tab" role="button" tabindex="0" data-cat="paid_tr"      onclick="switchCat(this)"><i class="fa-solid fa-trophy"></i> Paid TR</div>
+        <div class="cat-tab" role="button" tabindex="0" data-cat="free_tr"      onclick="switchCat(this)"><i class="fa-solid fa-chess-knight"></i> Free TR</div>
+        <div class="cat-tab" role="button" tabindex="0" data-cat="random_rooms" onclick="switchCat(this)"><i class="fa-solid fa-dice"></i> Random &amp; Rooms</div>
       </div>
 
       <!-- MAIN LAYOUT -->

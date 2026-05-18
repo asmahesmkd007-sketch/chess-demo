@@ -116,7 +116,7 @@
                 </div>
                 <div class="topbar-right">
                     <div class="topbar-player-id" id="tb-player-id">PX-SYNCING...</div>
-                    <div class="topbar-avatar" id="tb-avatar">P</div>
+                    <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
                 </div>
             </div>
 
@@ -150,7 +150,7 @@
                                 <button class="preset-btn" onclick="setDepositAmt(1000)">₹1000</button>
                             </div>
                             <div class="input-group">
-                                <label>Enter Amount (₹)</label>
+                                <label for="deposit-amt">Enter Amount (₹)</label>
                                 <input type="number" id="deposit-amt" placeholder="Min. ₹10, Max. ₹1000" min="10" max="1000">
                             </div>
                             <button class="btn btn-primary w-full" id="btn-deposit" onclick="handleDeposit()">
@@ -165,7 +165,7 @@
                         <div class="action-card">
                             <h3><i class="fa-solid fa-arrow-up-right-from-square"></i> Withdraw</h3>
                             <div class="input-group">
-                                <label>Withdraw Amount (Min. ₹30, Max. ₹1000)</label>
+                                <label for="withdraw-amt">Withdraw Amount (Min. ₹30, Max. ₹1000)</label>
                                 <input type="number" id="withdraw-amt" placeholder="100" min="30" max="1000" oninput="calcNetWithdraw()">
                                 <div id="gst-info" style="font-size:11px;color:var(--text-muted);margin-top:6px;display:none">
                                    You will receive: <span id="net-receive" style="color:var(--success);font-weight:700">₹0</span> 
@@ -173,7 +173,7 @@
                                 </div>
                             </div>
                             <div class="input-group">
-                                <label>UPI ID (Google Pay, PhonePe, etc.)</label>
+                                <label for="withdraw-upi">UPI ID (Google Pay, PhonePe, etc.)</label>
                                 <input type="text" id="withdraw-upi" placeholder="example@oksbi">
                             </div>
                             <button class="btn btn-secondary w-full" id="btn-withdraw" onclick="handleWithdraw()">

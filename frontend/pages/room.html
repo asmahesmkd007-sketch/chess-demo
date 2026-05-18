@@ -65,7 +65,7 @@
                 </div>
                 <div class="topbar-right">
                     <div class="topbar-player-id" id="room-code-display">ROOM: PX-XXXXXX</div>
-                    <div class="topbar-avatar" id="tb-avatar">P</div>
+                    <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
                 </div>
             </div>
 
@@ -78,13 +78,13 @@
                             <h2 id="host-name">Host Name</h2>
                             <p class="text-muted" style="margin-bottom: 20px;">Room Owner</p>
                             
-                            <div class="code-box" id="code-box" onclick="copyCode()">Loading link...</div>
+                            <div class="code-box" id="code-box" role="button" tabindex="0" aria-label="Copy Invite Link" onclick="copyCode()">Loading link...</div>
                             <p style="font-size: 10px; color: var(--text-muted); margin-top: 8px;">Click to copy invite link</p>
 
                             <div id="host-controls" style="display: none;">
                                 <!-- Auto-match Toggle -->
                                 <div id="auto-match-ui" style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                                    <input type="checkbox" id="auto-match-toggle" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--gold);" onchange="toggleAutoMatch()">
+                                    <input type="checkbox" id="auto-match-toggle" aria-label="Toggle Auto Match" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--gold);" onchange="toggleAutoMatch()">
                                     <div style="text-align: left;">
                                         <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">Auto-match (5sec)</div>
                                         <div id="auto-match-status" style="font-size: 0.75rem; color: var(--gold); font-weight: 500;">Disabled</div>

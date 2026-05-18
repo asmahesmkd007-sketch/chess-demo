@@ -105,37 +105,37 @@
       </div>
       
       <nav class="records-nav">
-        <div class="records-nav-item active" onclick="showPage('dashboard', this)">
+        <div class="records-nav-item active" role="button" tabindex="0" onclick="showPage('dashboard', this)">
           <i class="fa-solid fa-house"></i> Dashboard
         </div>
-        <div class="records-nav-item" onclick="showPage('users', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('users', this)">
           <i class="fa-solid fa-users"></i> User Directory
           <span id="nav-users-count" class="pending-count" style="display: none">0</span>
         </div>
-        <div class="records-nav-item" onclick="showPage('kyc', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('kyc', this)">
           <i class="fa-solid fa-id-card"></i> KYC Verification
           <span id="nav-kyc-count" class="pending-count">0</span>
         </div>
-        <div class="records-nav-item" onclick="showPage('withdrawals', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('withdrawals', this)">
           <i class="fa-solid fa-money-bill-transfer"></i> Payout Queue
           <span id="nav-wd-count" class="pending-count">0</span>
         </div>
-        <div class="records-nav-item" onclick="showPage('tournaments', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('tournaments', this)">
           <i class="fa-solid fa-trophy"></i> Tournaments
         </div>
-        <div class="records-nav-item" onclick="showPage('matches', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('matches', this)">
           <i class="fa-solid fa-chess"></i> Live Games
         </div>
-        <div class="records-nav-item" onclick="showPage('transactions', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('transactions', this)">
           <i class="fa-solid fa-list-ul"></i> All Transactions
         </div>
-        <div class="records-nav-item" onclick="showPage('feedback', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('feedback', this)">
           <i class="fa-solid fa-comments"></i> Feedbacks
         </div>
-        <div class="records-nav-item" onclick="showPage('reports', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('reports', this)">
           <i class="fa-solid fa-triangle-exclamation"></i> Support Reports
         </div>
-        <div class="records-nav-item" onclick="showPage('create-tournament', this)">
+        <div class="records-nav-item" role="button" tabindex="0" onclick="showPage('create-tournament', this)">
           <i class="fa-solid fa-calendar-plus"></i> Create Event
         </div>
       </nav>
@@ -153,7 +153,7 @@
     <main class="records-content">
       <header class="records-topbar">
         <div style="display:flex; align-items:center; gap:12px">
-          <button class="records-mobile-toggle" onclick="toggleRecordsSidebar()"><i class="fa-solid fa-bars"></i></button>
+          <button class="records-mobile-toggle" aria-label="Toggle Sidebar" onclick="toggleRecordsSidebar()"><i class="fa-solid fa-bars"></i></button>
           <div style="font-family: var(--font-display); font-size: 15px; font-weight: 800; letter-spacing: 1px" id="records-page-title">DASHBOARD</div>
         </div>
         <div style="display: flex; align-items: center; gap: 16px">
@@ -347,7 +347,7 @@
   <!-- Image Modal -->
   <div class="modal" id="image-modal" onclick="closeImageModal()">
     <div class="modal-content" onclick="event.stopPropagation()" style="max-width: fit-content; background: none; border: none">
-      <button class="image-modal-close" style="position:absolute; top:-40px; right:0; background:none; border:none; color:white; font-size:32px" onclick="closeImageModal()">&times;</button>
+      <button class="image-modal-close" aria-label="Close modal" style="position:absolute; top:-40px; right:0; background:none; border:none; color:white; font-size:32px" onclick="closeImageModal()">&times;</button>
       <img id="modal-img" src="" style="max-height:85vh; border-radius:12px; border:2px solid var(--border)">
       <div id="modal-title" style="color:var(--gold); text-align:center; padding-top:16px; font-family:var(--font-display); font-weight:800">DOCUMENT PREVIEW</div>
     </div>

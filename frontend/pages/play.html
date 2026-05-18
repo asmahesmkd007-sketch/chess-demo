@@ -228,7 +228,7 @@
       <div class="topbar-left"><div class="page-title">PLAY CHESS</div></div>
       <div class="topbar-right" style="gap:8px">
         <div class="topbar-player-id" id="tb-pid">...</div>
-        <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
+        <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
         <button class="btn-settings" id="btn-open-ps" title="Board Settings" onclick="openPS()">
           <i class="fa-solid fa-sliders"></i>
           <span class="sp-pulse"></span>
@@ -389,7 +389,7 @@
         <div class="psp-icon"><i class="fa-solid fa-sliders"></i></div>
         Board Settings <span class="psp-live-dot"></span>
       </div>
-      <button class="psp-close" onclick="closePS()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="psp-close" aria-label="Close Settings" onclick="closePS()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="psp-tabs">
       <button class="psp-tab active" onclick="pspTab('pst-board',this)"><i class="fa-solid fa-chess-board"></i>Board</button>

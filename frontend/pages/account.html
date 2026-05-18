@@ -577,7 +577,7 @@
             <div class="pb-right">
               <div class="pb-label">PLAYER IDENTITY</div>
               <div class="pb-pid" id="pb-pid">PX-000000</div>
-              <button class="copy-btn" onclick="copyPID()">
+              <button class="copy-btn" aria-label="Copy Player ID" onclick="copyPID()">
                 <i class="fa-solid fa-copy"></i> Copy ID
               </button>
             </div>
@@ -816,21 +816,21 @@
                   <label class="form-label">Current Password</label>
                   <div class="password-wrapper">
                     <input type="password" id="sec-current-pwd" class="form-input" placeholder="Verify your current password">
-                    <i class="fa-solid fa-eye toggle-pwd" onclick="togglePassword('sec-current-pwd', this)"></i>
+                    <i class="fa-solid fa-eye toggle-pwd" role="button" tabindex="0" aria-label="Toggle password visibility" onclick="togglePassword('sec-current-pwd', this)"></i>
                   </div>
                 </div>
                 <div class="form-item">
                   <label class="form-label">New Password</label>
                   <div class="password-wrapper">
                     <input type="password" id="sec-new-pwd" class="form-input" placeholder="6-12 characters">
-                    <i class="fa-solid fa-eye toggle-pwd" onclick="togglePassword('sec-new-pwd', this)"></i>
+                    <i class="fa-solid fa-eye toggle-pwd" role="button" tabindex="0" aria-label="Toggle password visibility" onclick="togglePassword('sec-new-pwd', this)"></i>
                   </div>
                 </div>
                 <div class="form-item">
                   <label class="form-label">Confirm New Password</label>
                   <div class="password-wrapper">
                     <input type="password" id="sec-confirm-pwd" class="form-input" placeholder="Repeat new password">
-                    <i class="fa-solid fa-eye toggle-pwd" onclick="togglePassword('sec-confirm-pwd', this)"></i>
+                    <i class="fa-solid fa-eye toggle-pwd" role="button" tabindex="0" aria-label="Toggle password visibility" onclick="togglePassword('sec-confirm-pwd', this)"></i>
                   </div>
                 </div>
               </div>

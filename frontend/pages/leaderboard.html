@@ -62,7 +62,7 @@
       <div class="topbar-left"><div class="page-title">LEADERBOARD</div></div>
       <div class="topbar-right">
         <div class="topbar-player-id" id="tb-pid">...</div>
-        <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
+        <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
       </div>
     </div>
     <div class="page-content">
@@ -92,7 +92,7 @@
       <div class="card">
         <div class="search-bar">
           <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;z-index:1"></i>
-          <input type="text" class="input" placeholder="Search @username..." id="lb-search" oninput="searchLeaderboard(this.value)" style="padding-left:36px;position:relative">
+          <input type="text" class="input" aria-label="Search Leaderboard" placeholder="Search @username..." id="lb-search" oninput="searchLeaderboard(this.value)" style="padding-left:36px;position:relative">
         </div>
         <div id="lb-list">
           <div class="flex-center" style="padding:40px"><div class="spinner"></div></div>

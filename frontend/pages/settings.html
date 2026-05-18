@@ -22,7 +22,7 @@
       <div class="topbar-left"><div class="page-title">SETTINGS</div></div>
       <div class="topbar-right">
         <span id="save-indicator" style="font-size:12px;color:var(--success);opacity:0;transition:opacity 0.3s"><i class="fa-solid fa-check"></i> Saved</span>
-        <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
+        <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
       </div>
     </div>
     <div class="page-content" style="max-width:680px">
@@ -36,11 +36,11 @@
             </div>
             <div class="toggle-desc">Toggle between dark and light theme</div>
           </div>
-          <label class="toggle"><input type="checkbox" id="s-theme" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-theme" aria-label="Dark Mode" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
         <div class="toggle-wrap">
           <div><div class="toggle-label">Result Animations</div><div class="toggle-desc">Show animations when game ends</div></div>
-          <label class="toggle"><input type="checkbox" id="s-result-anim" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-result-anim" aria-label="Result Animations" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
         <div class="input-group" style="margin-top:16px;margin-bottom:0">
           <label for="s-language" class="input-label">Language</label>
@@ -58,11 +58,11 @@
         <div class="card-title"><i class="fa-solid fa-chess-pawn"></i> Chess Game Settings</div>
         <div class="toggle-wrap">
           <div><div class="toggle-label">Highlight Moves</div><div class="toggle-desc">Highlight the last move made on board</div></div>
-          <label class="toggle"><input type="checkbox" id="s-highlight" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-highlight" aria-label="Highlight Moves" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
         <div class="toggle-wrap">
           <div><div class="toggle-label">Show Legal Moves</div><div class="toggle-desc">Show valid moves when piece is selected</div></div>
-          <label class="toggle"><input type="checkbox" id="s-legal" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-legal" aria-label="Show Legal Moves" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
 
       </div>
@@ -72,15 +72,15 @@
         <div class="card-title"><i class="fa-solid fa-bell"></i> Notifications</div>
         <div class="toggle-wrap">
           <div><div class="toggle-label">Match Found Alert</div><div class="toggle-desc">Notify when opponent is found</div></div>
-          <label class="toggle"><input type="checkbox" id="s-notif-match" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-notif-match" aria-label="Match Found Alert" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
         <div class="toggle-wrap">
           <div><div class="toggle-label">Tournament Alerts</div><div class="toggle-desc">Notify about tournament start/end</div></div>
-          <label class="toggle"><input type="checkbox" id="s-notif-tour" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-notif-tour" aria-label="Tournament Alerts" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
         <div class="toggle-wrap" style="border-bottom:none">
           <div><div class="toggle-label">Friend Request Alerts</div><div class="toggle-desc">Notify when someone challenges you</div></div>
-          <label class="toggle"><input type="checkbox" id="s-notif-friend" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-notif-friend" aria-label="Friend Request Alerts" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
 
       </div>
@@ -90,7 +90,7 @@
         <div class="card-title"><i class="fa-solid fa-lock"></i> Privacy</div>
         <div class="toggle-wrap">
           <div><div class="toggle-label">Show Online Status</div><div class="toggle-desc">Let others see when you're online</div></div>
-          <label class="toggle"><input type="checkbox" id="s-online-status" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
+          <label class="toggle"><input type="checkbox" id="s-online-status" aria-label="Show Online Status" checked onchange="saveSetting()"><div class="toggle-slider"></div></label>
         </div>
         <div class="input-group" style="margin-top:8px">
           <label for="s-visibility" class="input-label">Profile Visibility</label>

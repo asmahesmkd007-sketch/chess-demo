@@ -100,21 +100,21 @@
           <div class="page-title">SOCIAL</div>
         </div>
         <div class="topbar-right">
-          <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'"
+          <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'"
             style="cursor:pointer">P</div>
         </div>
       </div>
 
       <div class="page-content" style="max-width:800px">
         <div class="friend-tabs">
-          <div class="friend-tab active" onclick="switchTab('list')"><i class="fa-solid fa-users"></i> My Friends</div>
-          <div class="friend-tab" onclick="switchTab('requests')"><i class="fa-solid fa-envelope-open"></i> Requests
+          <div class="friend-tab active" role="button" tabindex="0" onclick="switchTab('list')"><i class="fa-solid fa-users"></i> My Friends</div>
+          <div class="friend-tab" role="button" tabindex="0" onclick="switchTab('requests')"><i class="fa-solid fa-envelope-open"></i> Requests
             <span id="req-badge" class="badge" style="background:var(--gold);color:#0a0a0a;display:none;margin-left:4px"></span></div>
-          <div class="friend-tab" onclick="switchTab('challenges')"><i class="fa-solid fa-chess-knight"></i> Challenges
+          <div class="friend-tab" role="button" tabindex="0" onclick="switchTab('challenges')"><i class="fa-solid fa-chess-knight"></i> Challenges
             <span id="chal-badge" class="badge" style="background:var(--teal);color:#0a0a0a;display:none;margin-left:4px"></span></div>
-          <div class="friend-tab" onclick="switchTab('clan')"><i class="fa-solid fa-shield-halved"></i> Clan Invites
+          <div class="friend-tab" role="button" tabindex="0" onclick="switchTab('clan')"><i class="fa-solid fa-shield-halved"></i> Clan Invites
             <span id="clan-badge" class="badge" style="background:var(--orange);color:#0a0a0a;display:none;margin-left:4px"></span></div>
-          <div class="friend-tab" onclick="switchTab('add')"><i class="fa-solid fa-plus"></i> Add Friend</div>
+          <div class="friend-tab" role="button" tabindex="0" onclick="switchTab('add')"><i class="fa-solid fa-plus"></i> Add Friend</div>
         </div>
 
         <!-- MY FRIENDS TAB -->

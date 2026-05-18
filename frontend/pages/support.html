@@ -223,9 +223,16 @@
             display: none;
         }
 
+        .status-success {
             background: rgba(34, 197, 94, 0.1);
             color: var(--success);
             border: 1px solid var(--success);
+        }
+        
+        .status-error {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--error);
+            border: 1px solid var(--error);
         }
 
         /* AdSense Container Styling */
@@ -256,7 +263,7 @@
                 </div>
                 <div class="topbar-right">
                     <div class="topbar-player-id" id="tb-pid">...</div>
-                    <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'">P</div>
+                    <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'">P</div>
                 </div>
             </div>
 

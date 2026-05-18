@@ -155,7 +155,7 @@
     <div class="topbar">
       <div class="topbar-left"><div class="page-title">REPORT A PROBLEM</div></div>
       <div class="topbar-right">
-        <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
+        <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
       </div>
     </div>
     
@@ -166,8 +166,8 @@
         
         <form id="report-form">
           <div class="type-selector">
-            <div class="type-btn active" onclick="setReportType('issue')"><i class="fa-solid fa-bug"></i> Report Issue</div>
-            <div class="type-btn" onclick="setReportType('player')"><i class="fa-solid fa-user-xmark"></i> Report Player</div>
+            <div class="type-btn active" role="button" tabindex="0" onclick="setReportType('issue')"><i class="fa-solid fa-bug"></i> Report Issue</div>
+            <div class="type-btn" role="button" tabindex="0" onclick="setReportType('player')"><i class="fa-solid fa-user-xmark"></i> Report Player</div>
           </div>
           
           <input type="hidden" id="r-type" value="issue">
@@ -223,7 +223,7 @@
           <textarea id="r-desc" class="report-input" placeholder="Please describe the issue or incident in detail..." required autocomplete="off"></textarea>
           
           <div class="file-upload">
-            <input type="file" id="r-file" accept="image/png, image/jpeg, image/jpg">
+            <input type="file" id="r-file" accept="image/png, image/jpeg, image/jpg" aria-label="Attach Screenshot">
             <div class="file-upload-txt" id="file-lbl">
               <i class="fa-solid fa-cloud-arrow-up"></i>
               <span>Attach Screenshot (Optional, Max 5MB)</span>

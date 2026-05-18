@@ -696,18 +696,18 @@
       <!-- LOGIN FORM -->
       <form class="auth-form active" id="login-form" onsubmit="doLogin(event)">
         <div class="input-wrap">
-          <label class="input-lbl">Email Address</label>
+          <label class="input-lbl" for="l-email">Email Address</label>
           <div class="input-shell">
             <i class="fa-solid fa-envelope input-icon"></i>
             <input type="email" id="l-email" class="input" placeholder="player@email.com" required autocomplete="email">
           </div>
         </div>
         <div class="input-wrap">
-          <label class="input-lbl">Password</label>
+          <label class="input-lbl" for="l-pass">Password</label>
           <div class="input-shell">
             <i class="fa-solid fa-lock input-icon"></i>
             <input type="password" id="l-pass" class="input has-eye" placeholder="Your password" required autocomplete="current-password">
-            <button type="button" class="input-eye" onclick="togglePwd('l-pass',this)" tabindex="-1">
+            <button type="button" class="input-eye" onclick="togglePwd('l-pass',this)" aria-label="Toggle password visibility">
               <i class="fa-solid fa-eye"></i>
             </button>
           </div>
@@ -722,7 +722,7 @@
       <form class="auth-form" id="register-form" onsubmit="doRegister(event)">
         <div class="reg-grid">
           <div class="input-wrap" style="margin-bottom:0">
-            <label class="input-lbl">Username</label>
+            <label class="input-lbl" for="r-user">Username</label>
             <div class="input-shell">
               <i class="fa-solid fa-at input-icon"></i>
               <input type="text" id="r-user" class="input" placeholder="chess_king" required minlength="5"
@@ -730,7 +730,7 @@
             </div>
           </div>
           <div class="input-wrap" style="margin-bottom:0">
-            <label class="input-lbl">Full Name</label>
+            <label class="input-lbl" for="r-name">Full Name</label>
             <div class="input-shell">
               <i class="fa-solid fa-user input-icon"></i>
               <input type="text" id="r-name" class="input" placeholder="Your Name" required autocomplete="name">
@@ -738,18 +738,18 @@
           </div>
         </div>
         <div class="input-wrap" style="margin-top:16px">
-          <label class="input-lbl">Email Address</label>
+          <label class="input-lbl" for="r-email">Email Address</label>
           <div class="input-shell">
             <i class="fa-solid fa-envelope input-icon"></i>
             <input type="email" id="r-email" class="input" placeholder="player@email.com" required autocomplete="email">
           </div>
         </div>
         <div class="input-wrap">
-          <label class="input-lbl">Password <span style="color:var(--text-muted);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">(min 6 chars)</span></label>
+          <label class="input-lbl" for="r-pass">Password <span style="color:var(--text-muted);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">(min 6 chars)</span></label>
           <div class="input-shell">
             <i class="fa-solid fa-lock input-icon"></i>
             <input type="password" id="r-pass" class="input has-eye" placeholder="Minimum 6 characters" required minlength="6" autocomplete="new-password" oninput="updatePwdStrength(this.value)">
-            <button type="button" class="input-eye" onclick="togglePwd('r-pass',this)" tabindex="-1">
+            <button type="button" class="input-eye" onclick="togglePwd('r-pass',this)" aria-label="Toggle password visibility">
               <i class="fa-solid fa-eye"></i>
             </button>
           </div>
@@ -761,7 +761,7 @@
           </div>
         </div>
         <div class="input-wrap">
-          <label class="input-lbl">Phone <span style="color:var(--text-muted);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+          <label class="input-lbl" for="r-phone">Phone <span style="color:var(--text-muted);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
           <div class="input-shell">
             <i class="fa-solid fa-phone input-icon"></i>
             <input type="tel" id="r-phone" class="input" placeholder="+91 9876543210" autocomplete="tel">
@@ -800,7 +800,7 @@
   <div id="toast-container" class="toast-container"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/api.js"></script>
-  <script src="/js/sidebar.js"></script>
+
   <script>
     requireGuest();
     
@@ -811,10 +811,9 @@
 
     /* -- THEME TOGGLE -- */
     (function initTheme() {
-      const saved = localStorage.getItem('px_theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', saved);
+      const theme = document.documentElement.getAttribute('data-theme') || 'dark';
       const icon = document.getElementById('theme-icon');
-      if (icon) icon.className = saved === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     })();
     document.getElementById('theme-toggle-btn').addEventListener('click', function() {
       const html = document.documentElement;

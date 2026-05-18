@@ -28,8 +28,11 @@ const fetchConfig = async () => {
 (function() {
   try {
     const u = JSON.parse(localStorage.getItem('px_user'));
-    const theme = u?.settings?.theme || 'dark';
+    const localTheme = localStorage.getItem('px_theme');
+    const theme = u?.settings?.theme || localTheme || 'dark';
     document.documentElement.setAttribute('data-theme', theme);
+    // Sync local theme
+    if (theme !== localTheme) localStorage.setItem('px_theme', theme);
   } catch {}
 })();
 

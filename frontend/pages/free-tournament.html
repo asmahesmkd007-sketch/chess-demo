@@ -22,7 +22,7 @@
       </div>
       <div class="topbar-right">
         <div class="topbar-player-id" id="tb-pid">...</div>
-        <div class="topbar-avatar" id="tb-avatar" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
+        <div class="topbar-avatar" id="tb-avatar" role="button" tabindex="0" aria-label="Account Settings" onclick="window.location='/pages/account.html'" style="cursor:pointer">P</div>
       </div>
     </div>
     <div class="page-content">
@@ -60,7 +60,7 @@
         <div class="modal-title" id="modal-name">Tournament</div>
         <div style="font-size:12px;color:var(--text-muted)" id="modal-status-text">...</div>
       </div>
-      <button onclick="document.getElementById('detail-modal').classList.remove('active')" class="btn btn-secondary btn-sm" style="width:auto"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="document.getElementById('detail-modal').classList.remove('active')" class="btn btn-secondary btn-sm" aria-label="Close modal" style="width:auto"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <div class="grid-2 mb-16" style="gap:12px">
