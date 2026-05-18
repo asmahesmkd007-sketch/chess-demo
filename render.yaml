@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: chessox-frontend
+    env: node
+    rootDir: frontend_next
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+  
+  - type: web
+    name: chessox-demo
+    env: node
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
