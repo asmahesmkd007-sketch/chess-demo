@@ -8,18 +8,40 @@
      crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
   <style>
-    .game-layout { display: flex; gap: 18px; align-items: flex-start; }
-    /* board-section auto-sizes: the outer frame decorates around the real board */
-    .board-section { flex-shrink: 0; width: min(500px, calc(90vw - 12px)); margin: 0 auto; }
+    .game-layout { display: flex; gap: 20px; align-items: flex-start; }
+    /* Board section: larger base size, fills available space intelligently */
+    .board-section {
+      flex-shrink: 0;
+      width: min(580px, calc(100vw - var(--sidebar-w) - 360px - 52px));
+      min-width: 280px;
+      margin: 0 auto;
+    }
     #board-frame-outer {
       border-radius: 10px;
-      transition: background 0.45s ease, box-shadow 0.45s ease, border 0.35s ease, padding 0.35s ease;
+      /* GPU-composited transitions — no layout reflow, no shaking */
+      transition: box-shadow 0.35s ease, filter 0.35s ease, border-color 0.25s ease, padding 0.25s ease;
+      will-change: box-shadow, filter;
     }
     /* board itself always fills 100% of its container */
     #board-bg-wrapper { width: 100%; }
     #board { width: 100% !important; }
-    /* chessboard.js squares must be square — override any stray heights */
+    /* Squares: enforce 1:1 aspect ratio */
     #board .square-55d63 { aspect-ratio: 1 / 1 !important; }
+    /* Piece images: centered via absolute+transform — works with chessboard.js float layout.
+       will-change:transform prevents sub-pixel jitter during animations. */
+    #board .square-55d63 img {
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      transform-origin: center center !important;
+      width: 88% !important;
+      height: 88% !important;
+      object-fit: contain !important;
+      will-change: transform !important;
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
+    }
     /* board border styles on outer frame */
     #board-frame-outer.border-wood   { border: 6px solid #8B5E3C !important; border-radius: 4px !important; }
     #board-frame-outer.border-metal  { border: 5px solid #7a8fa8 !important; border-radius: 3px !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12) !important; }
@@ -36,9 +58,146 @@
     .player-bar.active { border-color: rgba(232,197,71,0.35); background: rgba(232,197,71,0.04); }
     .player-timer { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--text-primary); margin-left: auto; flex-shrink: 0; }
     .player-timer.low { color: var(--error); animation: pulse-red 1s infinite; }
-    .move-list { height: 160px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 12px; }
+    .move-list { height: 160px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 12px; display: none; }
     .move-item { display: inline-block; padding: 2px 6px; font-family: monospace; font-size: 12px; color: var(--text-secondary); }
     .move-number { color: var(--text-muted); font-size: 11px; }
+
+    /* ═══════════════════════════════════════════════
+       MOVE HISTORY — polished two-column layout
+    ═══════════════════════════════════════════════ */
+    .mh-root {
+      display: flex; flex-direction: column; gap: 0;
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+    }
+
+    /* ── Header row: two player columns ── */
+    .mh-header {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .mh-player {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px;
+    }
+    .mh-player:first-child { border-right: 1px solid var(--border-subtle); }
+    .mh-piece-dot {
+      width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .mh-piece-dot.white { background: #f0d9b5; border: 1.5px solid rgba(0,0,0,0.25); }
+    .mh-piece-dot.black { background: #2c2c2c; border: 1.5px solid rgba(255,255,255,0.12); }
+    .mh-player-label {
+      display: flex; flex-direction: column; min-width: 0;
+    }
+    .mh-player-role {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-muted); line-height: 1;
+    }
+    .mh-player-name {
+      font-size: 12px; font-weight: 600; color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 110px; line-height: 1.3;
+    }
+
+    /* ── Scrollable move body ── */
+    .mh-body {
+      max-height: 220px; overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+    .mh-body::-webkit-scrollbar { width: 3px; }
+    .mh-body::-webkit-scrollbar-track { background: transparent; }
+    .mh-body::-webkit-scrollbar-thumb { background: rgba(232,197,71,0.2); border-radius: 4px; }
+
+    /* ── Each turn row ── */
+    .mh-row {
+      display: grid; grid-template-columns: 28px 1fr 1fr;
+      align-items: stretch;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s;
+    }
+    .mh-row:last-child { border-bottom: none; }
+    .mh-row:hover { background: rgba(255,255,255,0.025); }
+    .mh-row.mh-row-even { background: rgba(0,0,0,0.12); }
+    .mh-row.mh-row-even:hover { background: rgba(255,255,255,0.025); }
+
+    /* ── Turn number cell ── */
+    .mh-num {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 600; color: var(--text-muted);
+      padding: 0 4px; border-right: 1px solid rgba(255,255,255,0.04);
+      user-select: none;
+    }
+
+    /* ── Individual move cell ── */
+    .mh-cell {
+      padding: 6px 10px; font-family: 'Courier New', monospace;
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      cursor: default; transition: color 0.15s, background 0.15s;
+      display: flex; align-items: center; gap: 5px;
+      min-height: 32px; position: relative;
+    }
+    .mh-cell:first-of-type { border-right: 1px solid rgba(255,255,255,0.04); }
+    .mh-cell:hover { color: var(--text-primary); }
+
+    /* Latest move highlight */
+    .mh-cell.mh-latest {
+      color: var(--gold);
+      background: rgba(232,197,71,0.08);
+    }
+    .mh-cell.mh-latest::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: var(--gold); border-radius: 0 2px 2px 0;
+    }
+
+    /* Capture indicator */
+    .mh-capture {
+      font-size: 9px; color: var(--error); opacity: 0.7;
+      font-family: var(--font-body); font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Check / checkmate badge */
+    .mh-check  { color: #f59e0b; font-size: 11px; }
+    .mh-mate   { color: var(--error); font-size: 11px; }
+
+    /* ── Empty state ── */
+    .mh-empty {
+      padding: 28px 16px; text-align: center;
+      color: var(--text-muted); font-size: 12px;
+    }
+    .mh-empty i { font-size: 22px; display: block; margin-bottom: 8px; opacity: 0.3; }
+
+    /* ── Move entry animation ── */
+    @keyframes mh-slide-in {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .mh-cell.mh-new { animation: mh-slide-in 0.22s ease forwards; }
+
+    /* ── Light theme overrides ── */
+    [data-theme="light"] .mh-root { background: #fff; border-color: #e5e7eb; }
+    [data-theme="light"] .mh-header { border-color: #e5e7eb; }
+    [data-theme="light"] .mh-player:first-child { border-color: #e5e7eb; }
+    [data-theme="light"] .mh-row { border-color: #f3f4f6; }
+    [data-theme="light"] .mh-row-even { background: #f9fafb; }
+    [data-theme="light"] .mh-row:hover { background: #f3f4f6; }
+    [data-theme="light"] .mh-num { border-color: #e5e7eb; color: #9ca3af; }
+    [data-theme="light"] .mh-cell { color: #374151; }
+    [data-theme="light"] .mh-cell:hover { color: #111827; }
+    [data-theme="light"] .mh-cell.mh-latest { color: #b45309; background: rgba(180,83,9,0.06); }
+    [data-theme="light"] .mh-cell.mh-latest::before { background: #b45309; }
+    [data-theme="light"] .mh-body::-webkit-scrollbar-thumb { background: rgba(180,83,9,0.2); }
+    [data-theme="light"] .mh-piece-dot.white { border-color: #d1d5db; }
+    [data-theme="light"] .mh-piece-dot.black { background: #1f2937; border-color: #374151; }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .mh-player-name { max-width: 80px; font-size: 11px; }
+      .mh-cell { font-size: 12px; padding: 5px 7px; }
+      .mh-num { font-size: 9px; }
+    }
     .game-result-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(10px); z-index: 500; align-items: center; justify-content: center; }
     .game-result-overlay.active { display: flex; }
     .result-card {
@@ -149,16 +308,23 @@
     @media (max-width: 900px) {
       .game-layout { flex-direction: column; align-items: stretch; }
       .side-panel { width: 100%; max-width: 100%; }
-      .board-section { width: 100%; display: flex; flex-direction: column; align-items: center; }
-      /* ensure board section takes full content width minus any frame border */
+      .board-section {
+        width: 100%;
+        max-width: min(560px, 100vw - 32px);
+        display: flex; flex-direction: column; align-items: center;
+      }
       #board-frame-outer { width: 100%; }
       #board { width: 100% !important; }
+    }
+    @media (max-width: 600px) {
+      .board-section { max-width: calc(100vw - 24px); }
     }
     @media (max-width: 480px) {
       .result-card { padding: 28px 20px; }
       .result-title { font-size: 20px; }
       .result-icon { font-size: 44px; }
       .player-timer { font-size: 18px; }
+      .board-section { max-width: calc(100vw - 16px); }
     }
     .offline-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; gap: 15px; color: #fff; }
     .offline-overlay.active { display: flex; }
@@ -510,6 +676,42 @@
     }
     .sp-preview-badge i { font-size: 8px; animation: blink-green 1.5s infinite; }
 
+    /* ── Live Preview Mini-Board ── */
+    .sp-live-preview {
+      padding: 14px 18px 0;
+      border-bottom: 1px solid rgba(212,168,67,0.1);
+      background: rgba(0,0,0,0.2);
+    }
+    .sp-live-preview-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.8px;
+      text-transform: uppercase; color: var(--gold);
+      display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
+    }
+    .sp-live-preview-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(212,168,67,0.3), transparent);
+    }
+    .sp-preview-board-wrap {
+      width: 160px; margin: 0 auto 14px;
+      border-radius: 6px; overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    #sp-preview-board { width: 160px !important; }
+    #sp-preview-board .square-55d63 { aspect-ratio: 1/1 !important; }
+    #sp-preview-board .square-55d63 img {
+      position: absolute !important;
+      top: 50% !important; left: 50% !important;
+      transform: translate(-50%,-50%) !important;
+      width: 88% !important; height: 88% !important;
+      object-fit: contain !important;
+      will-change: transform !important;
+    }
+    .sp-preview-board-overlay {
+      position: absolute; inset: 0; pointer-events: none;
+      border-radius: 6px;
+    }
+
     /* Board bg wrapper — now just a pass-through; outer frame has the visuals */
     #board-bg-wrapper {
       width: 100%; overflow: hidden;
@@ -754,9 +956,39 @@
             </div>
           </div>
 
-          <div class="card">
-            <div class="card-title">Move History</div>
-            <div class="move-list" id="move-list"></div>
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:7px">
+                <span style="display:inline-block;width:3px;height:14px;background:var(--gold);border-radius:2px"></span>
+                Move History
+              </div>
+              <span id="mh-move-count" style="font-size:10px;color:var(--text-muted);font-weight:600"></span>
+            </div>
+            <div class="mh-root" style="border:none;border-radius:0">
+              <!-- player header — populated by JS -->
+              <div class="mh-header" id="mh-header">
+                <div class="mh-player">
+                  <div class="mh-piece-dot white"></div>
+                  <div class="mh-player-label">
+                    <span class="mh-player-role">White</span>
+                    <span class="mh-player-name" id="mh-white-name">—</span>
+                  </div>
+                </div>
+                <div class="mh-player">
+                  <div class="mh-piece-dot black"></div>
+                  <div class="mh-player-label">
+                    <span class="mh-player-role">Black</span>
+                    <span class="mh-player-name" id="mh-black-name">—</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mh-body" id="mh-body">
+                <div class="mh-empty" id="mh-empty">
+                  <i class="fa-solid fa-chess-pawn"></i>
+                  No moves yet
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -859,6 +1091,15 @@
   </div>
 
   <div class="sp-body" id="sp-body">
+
+    <!-- Live Preview Mini-Board -->
+    <div class="sp-live-preview">
+      <div class="sp-live-preview-label"><i class="fa-solid fa-eye"></i> Live Preview</div>
+      <div class="sp-preview-board-wrap">
+        <div id="sp-preview-board"></div>
+        <div class="sp-preview-board-overlay" id="sp-preview-overlay"></div>
+      </div>
+    </div>
 
     <!-- Tab: Board Themes -->
     <div class="sp-tab-panel active" id="tab-board">
@@ -1052,6 +1293,7 @@ let oppTime = timerType * 60;
 let timerInterval = null;
 let gameActive = false;
 let moveCount = 0;
+const mhTurns = [];   // move history turns: [{ white: san, black: san|null }, ...]
 let selectedSquare = null;
 
 // Local State Management
@@ -1106,7 +1348,9 @@ function restoreLocalState() {
     
     const list = document.getElementById('move-list');
     list.innerHTML = ''; moveCount = 0;
+    mhTurns.length = 0;
     chess.history().forEach(san => addMoveToList(san));
+    mhInitHeader();
     updatePlayerBar();
   } catch (e) { console.error('Failed to restore local state', e); }
 }
@@ -1265,6 +1509,7 @@ function undoMove() {
   const list = document.getElementById('move-list');
   list.innerHTML = '';
   moveCount = 0;
+  mhTurns.length = 0;
   chess.history().forEach(san => addMoveToList(san));
   
   updatePlayerBar();
@@ -1418,9 +1663,11 @@ if (mode === 'bot') {
   document.getElementById('my-timer').style.display = 'none';
   document.getElementById('opp-timer').style.display = 'none';
   document.getElementById('btn-undo').style.display = 'block'; // Show undo for practice
+  mhInitHeader();
 } else if (opponentData.username) {
   updatePlayerUI(false, opponentData);
   checkFriendshipStatus(opponentData.username, opponentData.userId || opponentData.id);
+  mhInitHeader();
 }
 
 async function checkFriendshipStatus(targetUsername, targetUserId) {
@@ -1530,20 +1777,112 @@ function onDrop(source, target) {
 
 function onSnapEnd() { board.position(chess.fen()); }
 
+// ─── MOVE HISTORY ────────────────────────────────────────────
+// mhTurns declared at top with moveCount
+
+function mhGetPlayerNames() {
+  const user = getUser();
+  const myName  = user?.full_name || fmt.username(user?.username) || 'You';
+  const oppName = document.getElementById('opp-name')?.textContent?.trim() || 'Opponent';
+  return myColor === 'white'
+    ? { white: myName, black: oppName }
+    : { white: oppName, black: myName };
+}
+
+function mhInitHeader() {
+  const { white, black } = mhGetPlayerNames();
+  const wEl = document.getElementById('mh-white-name');
+  const bEl = document.getElementById('mh-black-name');
+  if (wEl) wEl.textContent = white;
+  if (bEl) bEl.textContent = black;
+}
+
+function mhParseSan(san) {
+  const isCapture   = san.includes('x');
+  const isCheck     = san.endsWith('+');
+  const isCheckmate = san.endsWith('#');
+  // Strip check/mate suffix for display, we'll add icon separately
+  const base = san.replace(/[+#]$/, '');
+  return { base, isCapture, isCheck, isCheckmate };
+}
+
+function mhCellHTML(san, isLatest, isNew) {
+  if (!san) return `<div class="mh-cell"></div>`;
+  const { base, isCapture, isCheck, isCheckmate } = mhParseSan(san);
+  const classes = ['mh-cell', isLatest ? 'mh-latest' : '', isNew ? 'mh-new' : ''].filter(Boolean).join(' ');
+  const capBadge  = isCapture   ? `<span class="mh-capture">✕</span>` : '';
+  const checkIcon = isCheckmate ? `<span class="mh-mate" title="Checkmate">✦</span>`
+                  : isCheck     ? `<span class="mh-check" title="Check">+</span>` : '';
+  return `<div class="${classes}">${base}${capBadge}${checkIcon}</div>`;
+}
+
+function mhRebuild(animateLastRow = false) {
+  const body    = document.getElementById('mh-body');
+  const empty   = document.getElementById('mh-empty');
+  const counter = document.getElementById('mh-move-count');
+  if (!body) return;
+
+  if (mhTurns.length === 0) {
+    body.innerHTML = '';
+    if (empty) { empty.style.display = 'block'; body.appendChild(empty); }
+    if (counter) counter.textContent = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  const totalMoves = mhTurns.reduce((n, t) => n + (t.white ? 1 : 0) + (t.black ? 1 : 0), 0);
+  if (counter) counter.textContent = totalMoves + (totalMoves === 1 ? ' move' : ' moves');
+
+  const lastTurnIdx  = mhTurns.length - 1;
+  const lastTurn     = mhTurns[lastTurnIdx];
+  const lastIsBlack  = !!lastTurn.black;
+
+  let html = '';
+  mhTurns.forEach((turn, i) => {
+    const isEven = i % 2 === 0;
+    const isLastRow = i === lastTurnIdx;
+    const wLatest = isLastRow && !lastIsBlack;
+    const bLatest = isLastRow && lastIsBlack;
+    const isNew   = animateLastRow && isLastRow;
+
+    html += `<div class="mh-row${isEven ? '' : ' mh-row-even'}">`;
+    html += `<div class="mh-num">${i + 1}</div>`;
+    html += mhCellHTML(turn.white, wLatest, isNew && !lastIsBlack);
+    html += mhCellHTML(turn.black || null, bLatest, isNew && lastIsBlack);
+    html += `</div>`;
+  });
+
+  body.innerHTML = html;
+  // Scroll to bottom smoothly
+  requestAnimationFrame(() => { body.scrollTop = body.scrollHeight; });
+}
+
 function addMoveToList(san) {
   moveCount++;
-  const list = document.getElementById('move-list');
-  if (moveCount % 2 === 1) {
-    const numEl = document.createElement('span');
-    numEl.className = 'move-number';
-    numEl.textContent = Math.ceil(moveCount / 2) + '. ';
-    list.appendChild(numEl);
+  // Also keep legacy move-list in sync (hidden, used by nothing visible)
+  const legacyList = document.getElementById('move-list');
+  if (legacyList) {
+    if (moveCount % 2 === 1) {
+      const numEl = document.createElement('span');
+      numEl.className = 'move-number';
+      numEl.textContent = Math.ceil(moveCount / 2) + '. ';
+      legacyList.appendChild(numEl);
+    }
+    const moveEl = document.createElement('span');
+    moveEl.className = 'move-item';
+    moveEl.textContent = san + ' ';
+    legacyList.appendChild(moveEl);
   }
-  const moveEl = document.createElement('span');
-  moveEl.className = 'move-item';
-  moveEl.textContent = san + ' ';
-  list.appendChild(moveEl);
-  list.scrollTop = list.scrollHeight;
+
+  // New structured history
+  if (moveCount % 2 === 1) {
+    // White's move — start a new turn
+    mhTurns.push({ white: san, black: null });
+  } else {
+    // Black's move — fill in the last turn
+    if (mhTurns.length > 0) mhTurns[mhTurns.length - 1].black = san;
+  }
+  mhRebuild(true);
 }
 
 function updatePlayerBar() {
@@ -1739,7 +2078,9 @@ function handleSync(data) {
       }
       const list = document.getElementById('move-list');
       list.innerHTML = ''; moveCount = 0;
+      mhTurns.length = 0;
       chess.history().forEach(san => addMoveToList(san));
+      mhInitHeader();
   } else if (data.fen) {
       console.log('[Sync] Applying FEN:', data.fen);
       chess.load(data.fen);
@@ -1760,6 +2101,7 @@ function handleSync(data) {
   myTime = myColor === 'white' ? data.white_time : data.black_time;
   oppTime = myColor === 'white' ? data.black_time : data.white_time;
   updatePlayerBar();
+  mhInitHeader();
   saveLocalState();
 }
 
@@ -2120,6 +2462,9 @@ function openSettings() {
   document.getElementById('settings-overlay').classList.add('open');
   document.getElementById('settings-panel').classList.add('open');
   document.getElementById('btn-open-settings').classList.add('active');
+  // Init or refresh the live preview mini-board
+  _previewBoard = null; // force re-init so it picks up current theme
+  requestAnimationFrame(() => initLivePreview());
 }
 
 function closeSettings() {
@@ -2129,6 +2474,8 @@ function closeSettings() {
   document.getElementById('settings-panel').classList.remove('open');
   document.getElementById('btn-open-settings').classList.remove('active');
   pendingSettings = null;
+  // Clean up preview board
+  if (_previewBoard) { try { _previewBoard.destroy(); } catch {} _previewBoard = null; }
 }
 
 function applyAndClose() {
@@ -2214,6 +2561,7 @@ function applyLivePreview(s) {
   applyBoardBorder(s.boardBorder);
   applyCoords(s.showCoords);
   applyBoardGlow(s.boardGlow);
+  updateLivePreview();
 }
 
 // Apply all saved settings
@@ -2224,6 +2572,75 @@ function applyAllSettings() {
   applyBoardBorder(gSettings.boardBorder);
   applyCoords(gSettings.showCoords);
   applyBoardGlow(gSettings.boardGlow);
+}
+
+// ── Live Preview Mini-Board ──────────────────────────────
+let _previewBoard = null;
+let _previewTimer = null;
+
+function initLivePreview() {
+  const el = document.getElementById('sp-preview-board');
+  if (!el || _previewBoard) return;
+  const s = pendingSettings || gSettings;
+  const t = PIECE_THEMES.find(x => x.id === s.pieceTheme) || PIECE_THEMES[0];
+  const pieceThemeFn = (piece) => t.wiki ? t.url + piece + '.png' : t.url + piece.toLowerCase() + '.png';
+  _previewBoard = Chessboard('sp-preview-board', {
+    position: 'start',
+    orientation: 'white',
+    draggable: false,
+    pieceTheme: pieceThemeFn,
+  });
+  updateLivePreviewTheme(s);
+}
+
+function updateLivePreview() {
+  clearTimeout(_previewTimer);
+  _previewTimer = setTimeout(() => {
+    const el = document.getElementById('sp-preview-board');
+    if (!el) return;
+    const s = pendingSettings || gSettings;
+    if (!_previewBoard) { initLivePreview(); return; }
+    // Update piece theme
+    const t = PIECE_THEMES.find(x => x.id === s.pieceTheme) || PIECE_THEMES[0];
+    const pieceThemeFn = (piece) => t.wiki ? t.url + piece + '.png' : t.url + piece.toLowerCase() + '.png';
+    _previewBoard.destroy();
+    _previewBoard = Chessboard('sp-preview-board', {
+      position: 'start',
+      orientation: 'white',
+      draggable: false,
+      pieceTheme: pieceThemeFn,
+    });
+    updateLivePreviewTheme(s);
+  }, 80);
+}
+
+function updateLivePreviewTheme(s) {
+  // Apply board color theme to preview
+  const bt = BOARD_THEMES.find(x => x.id === s.boardTheme);
+  let style = document.getElementById('dyn-preview-theme');
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'dyn-preview-theme';
+    document.head.appendChild(style);
+  }
+  if (bt) {
+    style.textContent = `
+      #sp-preview-board .white-1e1d7 { background-color: ${bt.light} !important; }
+      #sp-preview-board .black-3c85d { background-color: ${bt.dark} !important; }
+    `;
+  }
+  // Apply border to preview wrap
+  const brd = BORDER_STYLES ? BORDER_STYLES.find(x => x.id === s.boardBorder) : null;
+  const wrap = document.querySelector('.sp-preview-board-wrap');
+  if (wrap) {
+    wrap.style.border = brd && brd.id !== 'none' ? brd.css || '' : '';
+    wrap.style.boxShadow = brd && brd.shadow ? brd.shadow : '';
+  }
+  // Apply glow to preview
+  const overlay = document.getElementById('sp-preview-overlay');
+  if (overlay) {
+    overlay.style.boxShadow = s.boardGlow ? 'inset 0 0 12px rgba(212,168,67,0.4)' : '';
+  }
 }
 
 // --- Board Theme ---
@@ -2241,23 +2658,35 @@ function applyBoardTheme(themeId) {
 }
 
 // --- Piece Theme ---
+let _pieceThemeTimer = null;
 function applyPieceTheme(themeId) {
   const t = PIECE_THEMES.find(x => x.id === themeId);
   if (!t || !board) return;
-  const ms = SPEED_VALUES[gSettings.animSpeed ?? 2];
-  const pieceThemeFn = (piece) => t.wiki ? t.url + piece + '.png' : t.url + piece.toLowerCase() + '.png';
-  board.destroy();
-  board = Chessboard('board', {
-    draggable: true,
-    moveSpeed: ms === 0 ? 'fast' : ms,
-    snapbackSpeed: Math.max(ms, 100),
-    snapSpeed: Math.max(ms * 0.5, 50),
-    position: chess.fen(), orientation: myColor,
-    pieceTheme: pieceThemeFn,
-    onDragStart, onDrop, onSnapEnd,
-    onMoveEnd: () => updateLastMoveHighlight()
-  });
-  setTimeout(() => updateLastMoveHighlight(), 300);
+  // Debounce: wait 120ms before destroying/recreating so rapid clicks don't stack
+  clearTimeout(_pieceThemeTimer);
+  _pieceThemeTimer = setTimeout(() => {
+    const ms = SPEED_VALUES[gSettings.animSpeed ?? 2];
+    const pieceThemeFn = (piece) => t.wiki ? t.url + piece + '.png' : t.url + piece.toLowerCase() + '.png';
+    const currentFen = chess.fen();
+    const currentOrientation = myColor;
+    board.destroy();
+    board = Chessboard('board', {
+      draggable: true,
+      moveSpeed: ms === 0 ? 'fast' : ms,
+      snapbackSpeed: Math.max(ms, 100),
+      snapSpeed: Math.max(ms * 0.5, 50),
+      position: currentFen,
+      orientation: currentOrientation,
+      pieceTheme: pieceThemeFn,
+      onDragStart, onDrop, onSnapEnd,
+      onMoveEnd: () => updateLastMoveHighlight()
+    });
+    // Restore highlights after board rebuild — use rAF to wait for DOM paint
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => updateLastMoveHighlight());
+    });
+    updateLivePreview();
+  }, 120);
 }
 
 // --- BG Template ---
@@ -2369,6 +2798,7 @@ function selectBoardTheme(id) {
   document.querySelectorAll('#board-theme-grid .sp-swatch').forEach(el => el.classList.remove('selected'));
   const el = document.getElementById('bts-' + id); if (el) el.classList.add('selected');
   applyBoardTheme(id);
+  updateLivePreview();
 }
 
 function selectPieceTheme(id) {
@@ -2377,6 +2807,7 @@ function selectPieceTheme(id) {
   document.querySelectorAll('#piece-theme-grid .sp-piece-card').forEach(el => el.classList.remove('selected'));
   const el = document.getElementById('pts-' + id); if (el) el.classList.add('selected');
   applyPieceTheme(id);
+  // updateLivePreview is called inside applyPieceTheme after debounce
 }
 
 function selectBgTemplate(id) {
@@ -2385,6 +2816,7 @@ function selectBgTemplate(id) {
   document.querySelectorAll('#bg-theme-grid .sp-bg-card').forEach(el => el.classList.remove('selected'));
   const el = document.getElementById('bgs-' + id); if (el) el.classList.add('selected');
   applyBgTemplate(id);
+  updateLivePreview();
 }
 
 function selectBorderStyle(id) {
@@ -2393,6 +2825,7 @@ function selectBorderStyle(id) {
   document.querySelectorAll('#border-style-grid .sp-border-card').forEach(el => el.classList.remove('selected'));
   const el = document.getElementById('bds-' + id); if (el) el.classList.add('selected');
   applyBoardBorder(id);
+  updateLivePreview();
 }
 
 // --- Board Border/Frame ---

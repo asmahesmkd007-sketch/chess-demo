@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -705,6 +705,166 @@
                 <div class="enc-acc" id="faq-acc"></div>
               </section>
 
+              <!-- S25 GAME RULES -->
+              <section id="game-rules" class="enc-sec">
+                <div class="enc-ey">&#9670; 25</div>
+                <h2>Official Game Rules</h2>
+                <div class="enc-div"></div>
+                <div class="enc-prose">
+                  <p>The following rules govern competitive chess play, based on the official FIDE Laws of Chess and used in all CHESS OX tournaments and rated matches.</p>
+                </div>
+
+                <div class="enc-acc" style="margin-bottom:20px">
+                  <div class="enc-ai open">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9812;</span><div><div class="enc-atitle">Rule 1 &mdash; Introduction</div><div class="enc-abadge">Nature of the game &bull; Conduct &bull; Contest types</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <p><strong>Section 1.</strong> Chess is played between two opponents who move chessmen on a board of alternating colored squares.</p>
+                      <p><strong>Section 2.</strong> Players must conduct themselves ethically in the spirit of fair play.</p>
+                      <p><strong>Section 3.</strong> Contests may be individual, team, medley team, or board Swiss.</p>
+                      <ul>
+                        <li><strong>Individual Tournament:</strong> Players are paired against each other on an individual basis.</li>
+                        <li><strong>Team Tournament:</strong> A team is paired against the same number of players from another team; individual results compile to a team score.</li>
+                        <li><strong>Medley Team:</strong> Members are treated as individuals; their scores are summed for a team total.</li>
+                        <li><strong>Board Swiss:</strong> A team is divided into subgroups, each run as an individual event; team score is the sum of all members.</li>
+                      </ul>
+                      <p><strong>Section 4.</strong> The player of the Black pieces is responsible for providing equipment unless otherwise specified.</p>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="enc-acc" style="margin-bottom:20px">
+                  <div class="enc-ai">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9814;</span><div><div class="enc-atitle">Rule 2 &mdash; The Chessboard and Its Arrangement</div><div class="enc-abadge">64 squares &bull; Color requirements &bull; Orientation</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <p><strong>Section 1.</strong> The chessboard has 64 equal squares alternating between light and dark.</p>
+                      <ul>
+                        <li>Acceptable light square colors: cream, white, tan/buff.</li>
+                        <li>Acceptable dark square colors: green, brown, black, dark blue.</li>
+                      </ul>
+                      <p><strong>Section 2.</strong> The board must be placed so each player has a light square in the bottom-right corner &mdash; <em>&ldquo;Light on right.&rdquo;</em></p>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="enc-acc" style="margin-bottom:20px">
+                  <div class="enc-ai">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9817;</span><div><div class="enc-atitle">Rule 3 &mdash; The Chessmen and Their Arrangement</div><div class="enc-abadge">16 pieces per side &bull; Starting positions</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <p>Each player begins with 16 chessmen: 1 King, 1 Queen, 2 Rooks, 2 Bishops, 2 Knights, and 8 Pawns.</p>
+                      <div class="enc-tw" style="margin-top:12px">
+                        <table class="enc-table">
+                          <thead><tr><th>Piece</th><th>White</th><th>Black</th><th>Count</th></tr></thead>
+                          <tbody>
+                            <tr><td>&#9812; King</td><td>e1</td><td>e8</td><td>1</td></tr>
+                            <tr><td>&#9813; Queen</td><td>d1</td><td>d8</td><td>1</td></tr>
+                            <tr><td>&#9814; Rooks</td><td>a1, h1</td><td>a8, h8</td><td>2</td></tr>
+                            <tr><td>&#9815; Bishops</td><td>c1, f1</td><td>c8, f8</td><td>2</td></tr>
+                            <tr><td>&#9816; Knights</td><td>b1, g1</td><td>b8, g8</td><td>2</td></tr>
+                            <tr><td>&#9817; Pawns</td><td>a2&ndash;h2</td><td>a7&ndash;h7</td><td>8</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="enc-tip" style="margin-top:12px"><strong>&#128161; Tip:</strong> Queens go on their own color &mdash; White queen on d1 (light), Black queen on d8 (dark).</div>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="enc-acc" style="margin-bottom:20px">
+                  <div class="enc-ai">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9816;</span><div><div class="enc-atitle">Rule 4 &mdash; Conduct of the Game</div><div class="enc-abadge">Alternating turns &bull; White moves first &bull; Completing a move</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <p><strong>Section 1.</strong> Players alternate turns. White always moves first.</p>
+                      <p><strong>Section 2.</strong> A move is completed when the player releases the piece on its destination square. In online play, a move is completed when the piece is dropped on a valid square.</p>
+                      <p><strong>Section 3.</strong> A player may not take back a completed move except where the move was illegal.</p>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="enc-acc" style="margin-bottom:20px">
+                  <div class="enc-ai">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9815;</span><div><div class="enc-atitle">Rule 5 &mdash; Definition of the Move</div><div class="enc-abadge">Transfer &bull; Capture &bull; Castling &bull; En passant &bull; Promotion</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <p><strong>Section 1 &mdash; Transfer.</strong> A move is the transfer of a chessman from one square to another vacant or occupied square.</p>
+                      <p><strong>Section 2 &mdash; Capture.</strong> When a piece moves to a square occupied by an enemy piece, the enemy piece is removed and the capturing piece takes its place.</p>
+                      <p><strong>Section 3 &mdash; Castling.</strong> A special King-and-Rook move counting as a single King move. The King moves two squares toward the Rook; the Rook jumps to the square the King crossed. Illegal if: either piece has previously moved; any square between them is occupied; the King is in check; or the King passes through or lands on an attacked square.</p>
+                      <p><strong>Section 4 &mdash; En Passant.</strong> When a pawn advances two squares from its start and lands beside an enemy pawn, the enemy pawn may capture it as if it had moved only one square. This right expires if not exercised on the very next move.</p>
+                      <p><strong>Section 5 &mdash; Promotion.</strong> When a pawn reaches the opposite end of the board it must immediately be replaced by a Queen, Rook, Bishop, or Knight of the same color. The new piece takes effect immediately.</p>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="enc-acc" style="margin-bottom:20px">
+                  <div class="enc-ai">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9813;</span><div><div class="enc-atitle">Rule 6 &mdash; Moves of the Individual Chessmen</div><div class="enc-abadge">King &bull; Queen &bull; Rook &bull; Bishop &bull; Knight &bull; Pawn</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <div class="enc-g2" style="margin-top:4px">
+                        <div class="enc-card"><h4>&#9812; King</h4><p>One square in any direction. May castle once per game. Cannot move into check.</p></div>
+                        <div class="enc-card"><h4>&#9813; Queen</h4><p>Any number of squares in any direction. The most powerful piece on the board.</p></div>
+                        <div class="enc-card"><h4>&#9814; Rook</h4><p>Any number of squares horizontally or vertically. Participates in castling.</p></div>
+                        <div class="enc-card"><h4>&#9815; Bishop</h4><p>Any number of squares diagonally. Always stays on the same color square.</p></div>
+                        <div class="enc-card"><h4>&#9816; Knight</h4><p>An &ldquo;L&rdquo; shape: two squares in one direction then one perpendicular. The only piece that jumps over others.</p></div>
+                        <div class="enc-card"><h4>&#9817; Pawn</h4><p>Forward one square; two on its first move. Captures diagonally forward. Subject to en passant and promotion.</p></div>
+                      </div>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="enc-acc" style="margin-bottom:20px">
+                  <div class="enc-ai">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9874;</span><div><div class="enc-atitle">Rules 7&ndash;9 &mdash; Completing a Move, Touch-Move &amp; Illegal Positions</div><div class="enc-abadge">Determination &bull; Touch-move &bull; Illegal position correction</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <p><strong>Rule 7 &mdash; Determination and Completion.</strong> A move is complete when the player&rsquo;s hand leaves the piece on its destination square. In timed games, the player must then press their clock.</p>
+                      <p><strong>Rule 8 &mdash; Touch-Move.</strong> If a player deliberately touches one of their own pieces, they must move it if a legal move exists. If they touch an opponent&rsquo;s piece, they must capture it if a legal capture exists. Saying <em>&ldquo;j&rsquo;adoube&rdquo;</em> before touching a piece signals adjustment only.</p>
+                      <p><strong>Rule 9 &mdash; Illegal Position.</strong> If an illegal move is completed, the position must be restored to what it was before the illegal move and the game continues from there. If the position cannot be reconstructed, the game is annulled and replayed.</p>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="enc-acc">
+                  <div class="enc-ai">
+                    <button class="enc-at" onclick="toggleAcc(this)">
+                      <div class="enc-at-l"><span class="enc-ag">&#9876;</span><div><div class="enc-atitle">Rules 10&ndash;12 &mdash; Check, Won Game &amp; Draw</div><div class="enc-abadge">Check &bull; Checkmate &bull; Resignation &bull; Stalemate &bull; All draw conditions</div></div></div>
+                      <i class="fa-solid fa-chevron-down enc-achev"></i>
+                    </button>
+                    <div class="enc-ab"><div class="enc-ab-in">
+                      <p><strong>Rule 10 &mdash; Check.</strong> The King is in check when the square it occupies is attacked by one or more enemy pieces. A player must resolve check immediately by moving the King, blocking the attack, or capturing the attacker. It is illegal to make any move that leaves or places your own King in check.</p>
+                      <p><strong>Rule 11 &mdash; Won Game.</strong> The game is won by the player who delivers checkmate &mdash; the opponent&rsquo;s King is in check with no legal escape. A game is also won if the opponent resigns, or if the opponent&rsquo;s clock runs out (provided the winning side has sufficient mating material).</p>
+                      <p><strong>Rule 12 &mdash; Drawing Game.</strong> The game is drawn when:</p>
+                      <ul>
+                        <li><strong>Stalemate</strong> &mdash; the player to move has no legal move and is not in check.</li>
+                        <li><strong>Mutual agreement</strong> &mdash; both players agree to a draw.</li>
+                        <li><strong>Threefold repetition</strong> &mdash; the same position occurs three times with the same player to move.</li>
+                        <li><strong>Fifty-move rule</strong> &mdash; 50 consecutive moves pass with no pawn move or capture.</li>
+                        <li><strong>Insufficient material</strong> &mdash; neither player has enough pieces to deliver checkmate (e.g. King vs. King).</li>
+                      </ul>
+                      <div class="enc-tip" style="margin-top:14px"><strong>Official reference:</strong> For the complete FIDE Laws of Chess, visit <a href="https://www.fide.com" target="_blank" rel="noreferrer" style="color:var(--enc-gold-l)">fide.com</a> or contact CHESS OX support.</div>
+                    </div></div>
+                  </div>
+                </div>
+
+              </section>
+
             </main>
           </div>
         </div>
@@ -743,8 +903,8 @@
 <script src="/js/api.js?v=4"></script>
 <script src="/js/sidebar.js"></script>
 <script>
-const TOC_IDS=['what-is-chess','why-matters','board','pieces','setup','movement','check-mate','special','game-end','time','notation','openings','strategy','ratings','titles','competitions','history','champions','variants','ai','start','quiz','glossary','faq'];
-const TOC_LABELS=['What Is Chess?','Why Chess Matters','The Chessboard','Chess Pieces','How to Set Up the Board','How Pieces Move','Check & Checkmate','Special Rules','How a Game Ends','Time Controls','Chess Notation','Chess Openings','Strategy & Tactics','Ratings & Elo','FIDE Titles','Competitions','History of Chess','World Champions','Chess Variants','Chess & AI','How to Start Playing','Test Your Knowledge','Glossary','FAQ'];
+const TOC_IDS=['what-is-chess','why-matters','board','pieces','setup','movement','check-mate','special','game-end','time','notation','openings','strategy','ratings','titles','competitions','history','champions','variants','ai','start','quiz','glossary','faq','game-rules'];
+const TOC_LABELS=['What Is Chess?','Why Chess Matters','The Chessboard','Chess Pieces','How to Set Up the Board','How Pieces Move','Check & Checkmate','Special Rules','How a Game Ends','Time Controls','Chess Notation','Chess Openings','Strategy & Tactics','Ratings & Elo','FIDE Titles','Competitions','History of Chess','World Champions','Chess Variants','Chess & AI','How to Start Playing','Test Your Knowledge','Glossary','FAQ','Game Rules'];
 
 window.addEventListener('DOMContentLoaded', async () => {
   try {

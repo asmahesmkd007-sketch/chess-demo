@@ -76,6 +76,41 @@
     .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .hero-actions .btn { width: auto; flex: 1; min-width: 120px; }
 
+    /* ── SYNCED EMAIL PILL (hero card) ── */
+    .synced-email-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 10px; flex-wrap: wrap;
+    }
+    .synced-email-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 4px 12px 4px 8px;
+      font-size: 12px; color: var(--text-muted);
+      max-width: 260px; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .synced-email-pill:hover { border-color: rgba(255,255,255,0.15); }
+    .synced-email-pill .pill-icon {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+    }
+    .synced-email-pill .pill-icon.google  { background: rgba(66,133,244,0.15); color: #4285F4; }
+    .synced-email-pill .pill-icon.email   { background: rgba(232,197,71,0.12); color: var(--gold); }
+    .synced-email-pill .pill-icon.github  { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .synced-email-pill .pill-icon.discord { background: rgba(88,101,242,0.15); color: #5865F2; }
+    .synced-email-pill .pill-icon.twitter { background: rgba(29,161,242,0.15); color: #1DA1F2; }
+    .synced-email-pill .pill-text {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.2px;
+    }
+    .synced-email-pill .pill-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--success); flex-shrink: 0;
+      box-shadow: 0 0 4px rgba(52,211,153,0.6);
+    }
+
     /* ── STAT CARDS ── */
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
     .stat-tile {
@@ -240,6 +275,7 @@
       .tile-value { font-size: 22px; }
       .live-stat-val { font-size: 22px; }
       .hero-actions { width: 100%; }
+      .synced-email-pill { max-width: 200px; }
     }
       @media (max-width: 400px) {
       .stats-row { grid-template-columns: 1fr; }
@@ -310,8 +346,17 @@
                   <span class="iq-pill"><i class="fa-solid fa-brain"></i> IQ <span id="dash-iq">100</span></span>
                   <span id="dash-kyc-badge"></span>
                 </div>
+                <div class="synced-email-row" id="synced-email-row" style="display:none">
+                  <div class="synced-email-pill" id="synced-email-pill" title="">
+                    <span class="pill-icon" id="synced-pill-icon"></span>
+                    <span class="pill-text" id="synced-pill-text"></span>
+                    <span class="pill-dot"></span>
+                  </div>
+                </div>
               </div>
             </div>
+            <!-- RANK SHIELD -->
+            <div id="dash-rank-shield" style="margin-left:auto;flex-shrink:0"></div>
           </div>
         </div>
 
@@ -559,6 +604,7 @@
   <!-- SCRIPTS -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="/js/api.js?v=4"></script>
+  <script src="/js/rank-shield.js"></script>
   <script src="/js/sidebar.js"></script>
   <script src="/js/socket.js?v=3"></script>
 
@@ -586,6 +632,7 @@
 
         loadDashboardData();
         initRealtime(user);
+        renderSyncedAccounts(res.user);
         document.getElementById('sync-overlay').classList.add('hidden');
       } catch (err) {
         console.error('Init error:', err);
@@ -624,6 +671,17 @@ document.getElementById('dash-kyc-badge').innerHTML = kycBadgeMap[user.kyc_statu
       const rBadge = document.getElementById('dash-rank-badge');
       rBadge.className = `badge ${rankBadgeMap[user.rank] || 'badge-bronze'}`;
       rBadge.textContent = user.rank || 'Bronze';
+
+      // ── Rank Shield ──
+      const shieldEl = document.getElementById('dash-rank-shield');
+      if (shieldEl && window.RankShield) {
+        const shieldExists = shieldEl.querySelector('.rank-shield-wrap');
+        if (shieldExists) {
+          RankShield.updateFromUser(shieldEl, user);
+        } else {
+          RankShield.fromUser(shieldEl, user, { size: 'lg', showBar: true, showLabel: true });
+        }
+      }
     }
 
     // ─── DASHBOARD STATE ─────────────────────────────────────
@@ -703,6 +761,15 @@ document.getElementById('dash-kyc-badge').innerHTML = kycBadgeMap[user.kyc_statu
                 rBadge.className = `badge ${rankBadgeMap[statsRes.rank] || 'badge-bronze'}`;
                 rBadge.textContent = statsRes.rank;
             }
+        }
+
+        // ── Live shield update from fresh stats ──
+        const shieldEl = document.getElementById('dash-rank-shield');
+        if (shieldEl && window.RankShield && (statsRes.iq_level !== undefined || statsRes.rank)) {
+          RankShield.update(shieldEl, {
+            iq:   statsRes.iq_level ?? (getUser()?.iq_level ?? 100),
+            rank: statsRes.rank     ?? null,
+          });
         }
 
         document.getElementById('wr-wins').textContent = wins;
@@ -916,6 +983,39 @@ document.getElementById('dash-kyc-badge').innerHTML = kycBadgeMap[user.kyc_statu
         window.location.href = '/pages/play.html';
       }
       pendingChallenge = null;
+    }
+
+    function renderSyncedAccounts(user) {
+      const accounts = user?.syncedAccounts;
+      const row  = document.getElementById('synced-email-row');
+      const pill = document.getElementById('synced-email-pill');
+      const icon = document.getElementById('synced-pill-icon');
+      const text = document.getElementById('synced-pill-text');
+
+      if (!accounts || accounts.length === 0) { row.style.display = 'none'; return; }
+
+      // Pick the primary account — prefer google/oauth over plain email
+      const primary = accounts.find(a => a.provider !== 'email') || accounts[0];
+
+      const providerIcons = {
+        google  : { fa: 'fa-brands fa-google',   cls: 'google'  },
+        email   : { fa: 'fa-solid fa-envelope',  cls: 'email'   },
+        github  : { fa: 'fa-brands fa-github',   cls: 'github'  },
+        discord : { fa: 'fa-brands fa-discord',  cls: 'discord' },
+        twitter : { fa: 'fa-brands fa-twitter',  cls: 'twitter' },
+      };
+      const meta = providerIcons[primary.provider] || { fa: 'fa-solid fa-link', cls: 'email' };
+
+      const emailDisplay = primary.email || user.email || '';
+      // Show only the email
+      const nameDisplay = emailDisplay;
+
+      icon.className = `pill-icon ${meta.cls}`;
+      icon.innerHTML = `<i class="${meta.fa}"></i>`;
+      text.textContent = nameDisplay;
+      pill.title = emailDisplay;
+
+      row.style.display = 'flex';
     }
 
     // Player ID copy

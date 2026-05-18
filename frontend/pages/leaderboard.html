@@ -46,6 +46,12 @@
       justify-content: center;
       overflow: hidden;
     }
+
+    /* ── Shield in top-3 cards ── */
+    .top3-shield { margin: 0 auto 6px; }
+
+    /* ── Shield in list rows ── */
+    .lb-row-shield { flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -62,9 +68,9 @@
     <div class="page-content">
       <!-- TOP 3 -->
       <div id="top3-section" class="top3-grid">
-        <div class="top3-card second"><div class="top3-crown"><i class="fa-solid fa-medal" style="color:#c0c0c0;"></i></div><div class="top3-avatar" style="background:linear-gradient(135deg,#999,#c0c0c0)" id="t2-avatar">?</div><div style="font-weight:600;font-size:13px" id="t2-name">-</div><div class="top3-iq" style="color:#c0c0c0" id="t2-iq">-</div><div style="font-size:11px;color:var(--text-muted)">IQ Level</div></div>
-        <div class="top3-card first"><div class="top3-crown"><i class="fa-solid fa-crown"></i></div><div class="top3-avatar" style="background:linear-gradient(135deg,#b8860b,var(--gold))" id="t1-avatar">?</div><div style="font-weight:700;font-size:14px" id="t1-name">-</div><div class="top3-iq" style="color:var(--gold)" id="t1-iq">-</div><div style="font-size:11px;color:var(--text-muted)">IQ Level</div></div>
-        <div class="top3-card third"><div class="top3-crown"><i class="fa-solid fa-medal" style="color:#cd7f32;"></i></div><div class="top3-avatar" style="background:linear-gradient(135deg,#8B4513,#cd7f32)" id="t3-avatar">?</div><div style="font-weight:600;font-size:13px" id="t3-name">-</div><div class="top3-iq" style="color:#cd7f32" id="t3-iq">-</div><div style="font-size:11px;color:var(--text-muted)">IQ Level</div></div>
+        <div class="top3-card second"><div class="top3-crown"><i class="fa-solid fa-medal" style="color:#c0c0c0;"></i></div><div id="t2-shield" class="top3-shield"></div><div class="top3-avatar" style="background:linear-gradient(135deg,#999,#c0c0c0)" id="t2-avatar">?</div><div style="font-weight:600;font-size:13px" id="t2-name">-</div><div class="top3-iq" style="color:#c0c0c0" id="t2-iq">-</div><div style="font-size:11px;color:var(--text-muted)">IQ Level</div></div>
+        <div class="top3-card first"><div class="top3-crown"><i class="fa-solid fa-crown"></i></div><div id="t1-shield" class="top3-shield"></div><div class="top3-avatar" style="background:linear-gradient(135deg,#b8860b,var(--gold))" id="t1-avatar">?</div><div style="font-weight:700;font-size:14px" id="t1-name">-</div><div class="top3-iq" style="color:var(--gold)" id="t1-iq">-</div><div style="font-size:11px;color:var(--text-muted)">IQ Level</div></div>
+        <div class="top3-card third"><div class="top3-crown"><i class="fa-solid fa-medal" style="color:#cd7f32;"></i></div><div id="t3-shield" class="top3-shield"></div><div class="top3-avatar" style="background:linear-gradient(135deg,#8B4513,#cd7f32)" id="t3-avatar">?</div><div style="font-weight:600;font-size:13px" id="t3-name">-</div><div class="top3-iq" style="color:#cd7f32" id="t3-iq">-</div><div style="font-size:11px;color:var(--text-muted)">IQ Level</div></div>
       </div>
 
       <!-- Leaderboard Top Ad Unit -->
@@ -112,6 +118,7 @@
 <div id="toast-container" class="toast-container"></div>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script src="/js/api.js"></script>
+<script src="/js/rank-shield.js"></script>
   <script src="/js/sidebar.js"></script>
 <script src="/js/socket.js"></script>
 <script>
@@ -189,25 +196,34 @@ async function loadLeaderboard() {
         : (p.full_name || p.username || '?')[0].toUpperCase();
       
       const displayName = p.full_name || fmt.username(p.username);
-      document.getElementById(id + '-name').innerHTML = `${displayName} ${p.rank_badge ? `<div class="badge ${fmt.rankClass(p.rank_badge)}" style="font-size:9px;padding:2px 4px;margin-top:4px">${p.rank_badge}</div>` : ''}`;
+      document.getElementById(id + '-name').innerHTML = displayName;
       document.getElementById(id + '-iq').textContent = p.iq_level;
 
-      // Add Trophy Display to Top Cards
+      // Render shield in top-3 card
+      const shieldSlot = document.getElementById(id + '-shield');
+      if (shieldSlot && window.RankShield) {
+        RankShield.render(shieldSlot, {
+          iq: p.iq_level, rank: p.rank_badge,
+          size: i === 0 ? 'md' : 'sm',
+          showBar: false, showLabel: false,
+        });
+      }
+
+      // Trophy display
       const trophies = p.trophies || { gold: 0, silver: 0, bronze: 0 };
       const trophyHtml = `
-        <div style="display:flex; gap:8px; justify-content:center; margin-top:8px;">
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
           <div title="Gold" style="font-size:11px;"><i class="fa-solid fa-trophy" style="color:var(--gold)"></i> ${trophies.gold}</div>
           <div title="Silver" style="font-size:11px;"><i class="fa-solid fa-trophy" style="color:#c0c0c0"></i> ${trophies.silver}</div>
           <div title="Bronze" style="font-size:11px;"><i class="fa-solid fa-trophy" style="color:#cd7f32"></i> ${trophies.bronze}</div>
-        </div>
-      `;
+        </div>`;
       const existingTrophies = avatarEl.parentElement.querySelector('.card-trophies');
       if (existingTrophies) existingTrophies.innerHTML = trophyHtml;
       else {
-          const div = document.createElement('div');
-          div.className = 'card-trophies';
-          div.innerHTML = trophyHtml;
-          avatarEl.parentElement.appendChild(div);
+        const div = document.createElement('div');
+        div.className = 'card-trophies';
+        div.innerHTML = trophyHtml;
+        avatarEl.parentElement.appendChild(div);
       }
     });
   }
@@ -231,32 +247,21 @@ function renderList(players) {
       : (friendship === 'pending' ? `<span class="btn-add-friend sent" style="margin-top:0;padding:4px 6px"><i class="fa-solid fa-clock"></i></span>` : '');
 
     const displayName = p.full_name || fmt.username(p.username);
+    const shieldId = `lb-shield-${i}`;
 
     return `<div class="lb-row ${isMe ? 'me' : ''}">
       <div class="lb-rank ${rankColors[i] || ''}">${i < 3 ? medals[i] : p.rank}</div>
+      <div class="lb-row-shield" id="${shieldId}"></div>
       <div class="avatar-initial" style="width:36px;height:36px;font-size:14px;flex-shrink:0">${avatarHtml}</div>
-      <div style="flex:1; min-width:0">
-        <div class="text-truncate" style="font-weight:600;font-size:13px">${displayName}${isMe ? ' <span style="color:var(--gold);font-size:11px;flex-shrink:0">(You)</span>' : ''}</div>
-        <div style="margin-top:2px">
-          ${p.rank_badge ? `<span class="badge ${fmt.rankClass(p.rank_badge)}" style="font-size:9px;padding:2px 6px">${p.rank_badge}</span>` : ''}
-        </div>
+      <div style="flex:1;min-width:0">
+        <div class="text-truncate" style="font-weight:600;font-size:13px">${displayName}${isMe ? ' <span style="color:var(--gold);font-size:11px">(You)</span>' : ''}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:1px">${p.rank_badge || ''}</div>
       </div>
-      <div style="flex-shrink:0;margin-right:4px">
-        ${friendBtn}
-      </div>
-      <div style="text-align:right;width:70px;flex-shrink:0; display:flex; gap:4px; justify-content: flex-end; align-items:center;">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-           <i class="fa-solid fa-trophy" style="color:var(--gold); font-size:12px;"></i>
-           <div style="font-size:11px; font-weight:700;">${p.trophies?.gold || 0}</div>
-        </div>
-        <div style="display:flex; flex-direction:column; align-items:center;">
-           <i class="fa-solid fa-trophy" style="color:#c0c0c0; font-size:12px;"></i>
-           <div style="font-size:11px; font-weight:700;">${p.trophies?.silver || 0}</div>
-        </div>
-        <div style="display:flex; flex-direction:column; align-items:center;">
-           <i class="fa-solid fa-trophy" style="color:#cd7f32; font-size:12px;"></i>
-           <div style="font-size:11px; font-weight:700;">${p.trophies?.bronze || 0}</div>
-        </div>
+      <div style="flex-shrink:0;margin-right:4px">${friendBtn}</div>
+      <div style="text-align:right;width:70px;flex-shrink:0;display:flex;gap:4px;justify-content:flex-end;align-items:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;"><i class="fa-solid fa-trophy" style="color:var(--gold);font-size:12px;"></i><div style="font-size:11px;font-weight:700;">${p.trophies?.gold||0}</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;"><i class="fa-solid fa-trophy" style="color:#c0c0c0;font-size:12px;"></i><div style="font-size:11px;font-weight:700;">${p.trophies?.silver||0}</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;"><i class="fa-solid fa-trophy" style="color:#cd7f32;font-size:12px;"></i><div style="font-size:11px;font-weight:700;">${p.trophies?.bronze||0}</div></div>
       </div>
       <div style="text-align:right;width:45px;flex-shrink:0">
         <div style="font-family:var(--font-display);font-size:16px;color:var(--gold)">${p.iq_level}</div>
@@ -264,6 +269,14 @@ function renderList(players) {
       </div>
     </div>`;
   }).join('');
+
+  // Render shields after DOM is built
+  if (window.RankShield) {
+    players.forEach((p, i) => {
+      const el = document.getElementById(`lb-shield-${i}`);
+      if (el) RankShield.render(el, { iq: p.iq_level, rank: p.rank_badge, size: 'xs', showBar: false, showLabel: false });
+    });
+  }
 }
 
 function searchLeaderboard(query) {

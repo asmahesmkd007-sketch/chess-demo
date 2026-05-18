@@ -85,6 +85,14 @@ app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
+// ─── STATIC FRONTEND ──────────────────────────────────────
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Serve login page as default for unknown routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/pages/login.html'));
+});
+
 // ─── START ───────────────────────────────────────────────
 const requiredEnv = [
   'SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 

@@ -24,7 +24,14 @@ const getProfile = async (req, res) => {
     // Check identities OR our custom app_metadata flag
     const hasPassword = !!(authUser?.app_metadata?.has_password || authUser?.identities?.find(id => id.provider === 'email'));
 
-    res.json({ success: true, user: { ...profile, provider, hasPassword } });
+    // Build synced accounts list from Supabase identities
+    const syncedAccounts = (authUser?.identities || []).map(identity => ({
+      provider: identity.provider,
+      email: identity.identity_data?.email || authUser?.email || null,
+      created_at: identity.created_at,
+    }));
+
+    res.json({ success: true, user: { ...profile, provider, hasPassword, email: req.user.email, syncedAccounts } });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error.' });
   }

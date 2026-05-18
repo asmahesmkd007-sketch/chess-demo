@@ -1,4 +1,5 @@
 const { supabase } = require('../config/supabase');
+const { Chess } = require('chess.js');
 
 const getMatchHistory = async (req, res) => {
   try {
@@ -192,11 +193,11 @@ const processMatchResult = async (matchId, result, winnerId, finalFen = null) =>
            
            if (finalFen) {
                const chess = new Chess(finalFen);
-               if (chess.in_checkmate()) {
+               if (chess.isCheckmate()) {
                    // Checkmate wins
                    winnerId = chess.turn() === 'w' ? match.player2_id : match.player1_id;
                    result = winnerId === match.player1_id ? 'player1_win' : 'player2_win';
-               } else if (chess.in_draw() || chess.in_stalemate() || chess.in_threefold_repetition() || chess.insufficient_material()) {
+               } else if (chess.isDraw() || chess.isStalemate() || chess.isThreefoldRepetition() || chess.isInsufficientMaterial()) {
                    result = 'draw';
                } else {
                    // Point based win

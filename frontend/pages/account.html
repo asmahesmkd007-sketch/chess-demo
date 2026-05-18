@@ -571,12 +571,16 @@
               </div>
             </div>
           </div>
-          <div class="pb-right">
-            <div class="pb-label">PLAYER IDENTITY</div>
-            <div class="pb-pid" id="pb-pid">PX-000000</div>
-            <button class="copy-btn" onclick="copyPID()">
-              <i class="fa-solid fa-copy"></i> Copy ID
-            </button>
+          <div style="display:flex;align-items:center;gap:20px;margin-left:auto">
+            <!-- RANK SHIELD -->
+            <div id="acc-rank-shield"></div>
+            <div class="pb-right">
+              <div class="pb-label">PLAYER IDENTITY</div>
+              <div class="pb-pid" id="pb-pid">PX-000000</div>
+              <button class="copy-btn" onclick="copyPID()">
+                <i class="fa-solid fa-copy"></i> Copy ID
+              </button>
+            </div>
           </div>
         </div>
 
@@ -851,6 +855,7 @@
   </div>
 
   <script src="/js/api.js"></script>
+  <script src="/js/rank-shield.js"></script>
   <script src="/js/sidebar.js"></script>
   <script>
     if (typeof requireAuth === 'function') {
@@ -879,6 +884,17 @@
         document.getElementById('pb-rank').textContent = u.rank || 'Bronze';
         document.getElementById('pb-rank').className = `m-badge m-rank ${fmt.rankClass(u.rank)}`;
         document.getElementById('pb-iq').textContent = u.iq_level || '...';
+
+        // ── Rank Shield ──
+        const shieldEl = document.getElementById('acc-rank-shield');
+        if (shieldEl && window.RankShield) {
+          const shieldExists = shieldEl.querySelector('.rank-shield-wrap');
+          if (shieldExists) {
+            RankShield.update(shieldEl, { iq: u.iq_level, rank: u.rank });
+          } else {
+            RankShield.render(shieldEl, { iq: u.iq_level, rank: u.rank, size: 'lg', showBar: true, showLabel: true });
+          }
+        }
 
         const badge = document.getElementById('pb-kyc-badge');
         if (u.kyc_status === 'verified') {

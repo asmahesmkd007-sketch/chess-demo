@@ -1506,3 +1506,131 @@ tbody tr.highlight { background: rgba(212,168,67,0.05); }
         margin: 10px 0;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   RANKING SHIELD COMPONENT
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Container ── */
+.rank-shield-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  user-select: none;
+}
+
+/* ── Shield image ── */
+.rank-shield-img {
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1),
+              filter 0.3s ease,
+              opacity 0.25s ease;
+  will-change: transform, filter;
+}
+.rank-shield-wrap:hover .rank-shield-img {
+  transform: translateY(-4px) scale(1.06);
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.55));
+}
+
+/* ── Size variants ── */
+.rank-shield-wrap.shield-xs .rank-shield-img { width: 32px;  height: 32px;  }
+.rank-shield-wrap.shield-sm .rank-shield-img { width: 48px;  height: 48px;  }
+.rank-shield-wrap.shield-md .rank-shield-img { width: 64px;  height: 64px;  }
+.rank-shield-wrap.shield-lg .rank-shield-img { width: 88px;  height: 88px;  }
+.rank-shield-wrap.shield-xl .rank-shield-img { width: 120px; height: 120px; }
+
+/* ── Tier label below shield ── */
+.rank-shield-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 5px;
+  transition: color 0.25s ease;
+}
+
+/* ── IQ points bar ── */
+.rank-shield-bar-wrap {
+  width: 100%;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.rank-shield-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.rank-shield-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  background: var(--rs-color, var(--gold));
+}
+.rank-shield-pts {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+/* ── Tier-specific colours ── */
+.rank-shield-wrap[data-rank="Bronze"]      { --rs-color: #c8903a; --rs-glow: rgba(200,144,58,0.35); }
+.rank-shield-wrap[data-rank="Copil"]       { --rs-color: #22d3ee; --rs-glow: rgba(34,211,238,0.35); }
+.rank-shield-wrap[data-rank="Silver"]      { --rs-color: #aaaabc; --rs-glow: rgba(170,170,188,0.35); }
+.rank-shield-wrap[data-rank="Gold"]        { --rs-color: #D4A843; --rs-glow: rgba(212,168,67,0.45); }
+.rank-shield-wrap[data-rank="Platinum"]    { --rs-color: #9b91d8; --rs-glow: rgba(155,145,216,0.40); }
+.rank-shield-wrap[data-rank="Diamond"]     { --rs-color: #38bdf8; --rs-glow: rgba(56,189,248,0.40); }
+.rank-shield-wrap[data-rank="Kingdom"]     { --rs-color: #fb7185; --rs-glow: rgba(251,113,133,0.40); }
+.rank-shield-wrap[data-rank="Grand Master"]{ --rs-color: #c084fc; --rs-glow: rgba(192,132,252,0.45); }
+
+.rank-shield-label { color: var(--rs-color, var(--gold)); }
+.rank-shield-bar-fill { background: var(--rs-color, var(--gold)); }
+
+/* ── Glow ring on hover ── */
+.rank-shield-wrap:hover .rank-shield-img {
+  filter: drop-shadow(0 0 10px var(--rs-glow, rgba(212,168,67,0.4)))
+          drop-shadow(0 8px 20px rgba(0,0,0,0.55));
+}
+
+/* ── Pulse animation for rank-up ── */
+@keyframes shield-rank-up {
+  0%   { transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+  30%  { transform: scale(1.18); filter: drop-shadow(0 0 18px var(--rs-glow, rgba(212,168,67,0.7))); }
+  60%  { transform: scale(0.96); }
+  100% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+}
+.rank-shield-img.shield-rank-up {
+  animation: shield-rank-up 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+/* ── Swap animation (tier change) ── */
+@keyframes shield-swap-out {
+  to { opacity: 0; transform: scale(0.7) translateY(8px); }
+}
+@keyframes shield-swap-in {
+  from { opacity: 0; transform: scale(0.7) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.rank-shield-img.shield-swap-out { animation: shield-swap-out 0.2s ease forwards; }
+.rank-shield-img.shield-swap-in  { animation: shield-swap-in  0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* ── Light theme ── */
+[data-theme="light"] .rank-shield-bar { background: rgba(0,0,0,0.1); }
+[data-theme="light"] .rank-shield-pts { color: var(--text-muted); }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .rank-shield-wrap.shield-xl .rank-shield-img { width: 88px; height: 88px; }
+  .rank-shield-wrap.shield-lg .rank-shield-img { width: 64px; height: 64px; }
+}
