@@ -234,9 +234,22 @@
     .enc-tbox thead th { background:rgba(18,18,42,.6); padding:8px 14px; text-align:left; font-family:"JetBrains Mono",monospace; font-size:10px; text-transform:uppercase; color:var(--enc-gold); }
     .enc-tbox tbody tr { background:var(--enc-card); border-top:1px solid rgba(212,168,67,.08); }
     .enc-tbox tbody td { padding:10px 14px; color:rgba(244,244,246,.8); }
-    /* ── Responsive enc overrides ── */
     @media(max-width:768px){
-      .enc-body{padding:0 16px}
+      .enc {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+      }
+      .enc-body {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 16px !important;
+      }
+      .enc-tw, .enc-tbox {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
       .enc-grid{padding:24px 0 60px}
       .enc-sec{padding:40px 0}
       .enc-board-w{max-width:100%}
