@@ -900,6 +900,19 @@
       el.classList.toggle('visible', !!msg);
     }
 
+    /* -- PWA REDIRECT -- */
+    function proceedToDashboard() {
+      window.location.href = '/pages/dashboard.html';
+    }
+
+    function checkAndShowPWA() {
+      if (!localStorage.getItem('pwa_installed') && typeof showInstallPrompt === 'function') {
+        showInstallPrompt(proceedToDashboard);
+      } else {
+        proceedToDashboard();
+      }
+    }
+
     /* â”€â”€ LOGIN â”€â”€ */
     async function doLogin(e) {
       e.preventDefault();
@@ -915,7 +928,7 @@
         setSession(res.token, res.refresh_token, res.user);
         sessionStorage.setItem('px_just_logged_in', 'true');
         btn.innerHTML = '<i class="fa-solid fa-check"></i> Success!';
-        setTimeout(() => window.location.href = '/pages/dashboard.html', 300);
+        setTimeout(() => checkAndShowPWA(), 300);
       } else {
         showErr('login-err', res?.message || 'Login failed. Please try again.');
         btn.disabled = false;
@@ -949,7 +962,7 @@
         setSession(res.token, res.refresh_token, res.user);
         sessionStorage.setItem('px_just_logged_in', 'true');
         btn.innerHTML = '<i class="fa-solid fa-check"></i> Account Created!';
-        setTimeout(() => window.location.href = '/pages/dashboard.html', 300);
+        setTimeout(() => checkAndShowPWA(), 300);
       } else {
         showErr('register-err', res?.message || 'Registration failed. Please try again.');
         btn.disabled = false;
@@ -997,7 +1010,7 @@
           setSession(res.token, res.refresh_token, res.user);
           sessionStorage.setItem('px_just_logged_in', 'true');
           history.replaceState(null, '', window.location.pathname);
-          setTimeout(() => window.location.href = '/pages/dashboard.html', 100);
+          setTimeout(() => checkAndShowPWA(), 100);
         } else {
           Toast.error(res?.message || 'Login failed.');
         }

@@ -356,12 +356,18 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  showInstallPrompt();
+  if (!window.location.pathname.includes('login.html')) {
+    showInstallPrompt();
+  }
 });
 
-function showInstallPrompt() {
-  if (localStorage.getItem('pwa_installed')) return;
+function showInstallPrompt(onCloseCallback) {
+  if (localStorage.getItem('pwa_installed')) {
+    if (onCloseCallback) onCloseCallback();
+    return;
+  }
   
+  if (document.getElementById('pwa-modal')) return;
   const modal = document.createElement('div');
   modal.id = 'pwa-modal';
   modal.innerHTML = `
@@ -385,9 +391,12 @@ function showInstallPrompt() {
   `;
   document.body.appendChild(modal);
 
-  document.getElementById('pwa-close').addEventListener('click', () => {
+  const closeAndProceed = () => {
     modal.remove();
-  });
+    if (onCloseCallback) onCloseCallback();
+  };
+
+  document.getElementById('pwa-close').addEventListener('click', closeAndProceed);
 
   document.getElementById('pwa-install').addEventListener('click', async () => {
     const btn = document.getElementById('pwa-install');
@@ -399,14 +408,14 @@ function showInstallPrompt() {
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
         localStorage.setItem('pwa_installed', 'true');
-        modal.remove();
+        closeAndProceed();
       } else {
         btn.disabled = false;
         btn.innerHTML = 'OK / INSTALL';
       }
       deferredPrompt = null;
     } else {
-      modal.remove();
+      closeAndProceed();
     }
   });
 }
