@@ -644,6 +644,11 @@
               <button class="btn-action" onclick="saveProfile()">
                 <i class="fa-solid fa-check-double"></i> Save Profile Details
               </button>
+
+              <div id="profile-update-cost-notice" style="font-size:12px; margin-top:15px; color:var(--text-muted); display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:6px; border:1px solid var(--border-subtle)">
+                <i class="fa-solid fa-circle-info" style="color:var(--orange)"></i>
+                <span id="profile-update-cost-text">Checking update limits...</span>
+              </div>
             </div>
 
             <!-- 4. KYC SECTION -->
@@ -943,6 +948,17 @@
         document.getElementById('edit-fullname').value = u.full_name || '';
         document.getElementById('edit-email').value = u.email || 'undefined';
 
+        // Render profile update cost details
+        const updatesCount = u.settings?.profile_updates_count || 0;
+        const costTextEl = document.getElementById('profile-update-cost-text');
+        if (costTextEl) {
+          if (updatesCount < 2) {
+            costTextEl.innerHTML = `You have <strong style="color:var(--success)">${2 - updatesCount} free</strong> profile updates left.`;
+          } else {
+            costTextEl.innerHTML = `Free updates exhausted. Each subsequent update costs <strong style="color:var(--orange)"><i class="fa-solid fa-coins"></i> 1 Coin</strong>.`;
+          }
+        }
+
         // Password Section Logic for OAuth Users
         const secHeader = document.getElementById('sec-header-pwd');
         const secCurrent = document.getElementById('sec-item-current');
@@ -1073,8 +1089,19 @@
         if (res.success) {
           Toast.success('Profile updated');
           await loadProfileData();
+          if (typeof syncSidebar === 'function') {
+            const currentCache = JSON.parse(localStorage.getItem('px_user')) || {};
+            syncSidebar(currentCache);
+          }
         } else {
-          Toast.error(res.message || 'Update failed');
+          if (res.code === 'INSUFFICIENT_COINS') {
+            Toast.error('Insufficient Coins! Redirecting to Wallet page...');
+            setTimeout(() => {
+              window.location.href = '/pages/wallet.html';
+            }, 1800);
+          } else {
+            Toast.error(res.message || 'Update failed');
+          }
         }
       } catch (err) {
         Toast.error('Network error');

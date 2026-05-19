@@ -1,4 +1,4 @@
-﻿const { supabase } = require('../config/supabase');
+const { supabase } = require('../config/supabase');
 
 // Helper: normalize username to strict @username format
 const normalizeUsername = (raw) => {
@@ -40,8 +40,57 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const { username: rawUsername, full_name, phone, profile_image } = req.body;
-    const updates = {};
+    
+    // 1. Fetch current profile to get settings and profile updates count
+    const { data: profile, error: profileErr } = await supabase.from('profiles').select('*').eq('id', req.user.id).single();
+    if (profileErr || !profile) {
+      return res.status(404).json({ success: false, message: 'Profile not found.' });
+    }
 
+    const updates = {};
+    const settings = profile.settings || {};
+    const profile_updates_count = settings.profile_updates_count || 0;
+
+    // 2. Check if free limit is exceeded (allowed 2 free times, 3rd onwards costs 1 coin)
+    if (profile_updates_count >= 2) {
+      const { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', req.user.id).single();
+      if (walletErr || !wallet) {
+        return res.status(400).json({ success: false, message: 'Wallet not found.' });
+      }
+      
+      const balance = wallet.balance || 0;
+      if (balance < 1) {
+        return res.status(400).json({
+          success: false,
+          code: 'INSUFFICIENT_COINS',
+          message: 'You have exhausted your 2 free profile updates. Updating profile costs 1 coin, but your balance is insufficient.'
+        });
+      }
+
+      // Deduct 1 coin from wallet
+      const newBalance = balance - 1;
+      const { error: deductErr } = await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', req.user.id);
+      if (deductErr) return res.status(500).json({ success: false, message: 'Wallet transaction failed.' });
+
+      // Insert transaction record
+      await supabase.from('transactions').insert({
+        user_id: req.user.id,
+        type: 'profile_update',
+        amount: 1,
+        status: 'success',
+        reference_id: `prof_${Date.now()}`,
+        balance_after: newBalance,
+        description: 'Deduction for profile update'
+      });
+
+      // Emit real-time balance update
+      const io = req.app.get('io');
+      if (io) {
+        io.to(req.user.id).emit('wallet_update', { balance: newBalance, type: 'profile_update' });
+      }
+    }
+
+    // 3. Setup standard update payload
     if (rawUsername) {
       const username = normalizeUsername(rawUsername);
       if (!isValidUsername(username)) {
@@ -57,10 +106,18 @@ const updateProfile = async (req, res) => {
     if (full_name !== undefined) updates.full_name = full_name;
     if (phone !== undefined) updates.phone = phone;
     if (profile_image !== undefined) updates.profile_image = profile_image;
+
+    // Save incremented updates count inside the JSONB settings column
+    updates.settings = {
+      ...settings,
+      profile_updates_count: profile_updates_count + 1
+    };
+
     const { data, error } = await supabase.from('profiles').update(updates).eq('id', req.user.id).select().single();
     if (error) return res.status(400).json({ success: false, message: error.message });
     res.json({ success: true, message: 'Profile updated.', user: data });
   } catch (err) {
+    console.error('updateProfile error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
@@ -186,7 +243,12 @@ const updateSettings = async (req, res) => {
     const { settings } = req.body;
     if (!settings || typeof settings !== 'object') return res.status(400).json({ success: false, message: 'Invalid settings format.' });
 
+    // Fetch existing settings first to preserve profile_updates_count and other custom keys
+    const { data: profile } = await supabase.from('profiles').select('settings').eq('id', req.user.id).single();
+    const currentSettings = profile?.settings || {};
+
     const sanitized = {
+      ...currentSettings,
       theme: settings.theme === 'light' ? 'light' : 'dark',
       highlight_moves: !!settings.highlight_moves,
       legal_moves: !!settings.legal_moves,
