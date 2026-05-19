@@ -859,6 +859,20 @@
     </div>
   </div>
 
+  <!-- PROFILE UPDATE CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="profile-confirm-modal">
+    <div class="modal" style="max-width: 400px; border: 2px solid #e8c547;">
+      <div class="modal-title" style="color: var(--gold); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-coins"></i> Profile Update Cost</div>
+      <div class="modal-desc" style="margin-top: 12px; line-height: 1.6; font-size: 14px; color: var(--text-primary);">
+        Your free profile updates are exhausted. Updating your profile now will cost <strong style="color: var(--gold);"><i class="fa-solid fa-coins"></i> 1 Coin</strong>. Do you want to proceed?
+      </div>
+      <div class="modal-actions" style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-secondary" id="btn-profile-confirm-cancel" style="width: auto; min-width: 90px; padding: 10px 16px;">Cancel</button>
+        <button class="btn btn-primary" id="btn-profile-confirm-ok" style="width: auto; min-width: 90px; padding: 10px 16px;"><i class="fa-solid fa-check"></i> Proceed</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/api.js"></script>
   <script src="/js/rank-shield.js"></script>
   <script src="/js/sidebar.js"></script>
@@ -1063,6 +1077,26 @@
       }
     }
 
+    function showCustomConfirm() {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('profile-confirm-modal');
+        const okBtn = document.getElementById('btn-profile-confirm-ok');
+        const cancelBtn = document.getElementById('btn-profile-confirm-cancel');
+
+        modal.classList.add('active');
+
+        const cleanup = (value) => {
+          modal.classList.remove('active');
+          okBtn.onclick = null;
+          cancelBtn.onclick = null;
+          resolve(value);
+        };
+
+        okBtn.onclick = () => cleanup(true);
+        cancelBtn.onclick = () => cleanup(false);
+      });
+    }
+
     async function saveProfile() {
       let updatesCount = 0;
       try {
@@ -1073,7 +1107,7 @@
       } catch (e) {}
 
       if (updatesCount >= 2) {
-        const proceed = confirm("Your free profile updates are exhausted. Updating your profile now will cost 1 Coin. Do you want to proceed?");
+        const proceed = await showCustomConfirm();
         if (!proceed) return;
       }
 
