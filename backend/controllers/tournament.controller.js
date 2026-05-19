@@ -250,9 +250,6 @@ const autoCreatePaidTournaments = async () => {
               prize_first: p1,
               prize_second: p2,
               prize_third: p3,
-              prize_fourth: p4,
-              prize_fifth: p5,
-              prize_sixth: p6,
               // BUG-M3: registration_deadline / expiry set to 2 hours
               start_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
               phase: 'upcoming'
