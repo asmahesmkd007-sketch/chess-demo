@@ -13,17 +13,21 @@ class TournamentManager {
         setInterval(() => this.pollLiveTournaments(), 5000);
         
         // FAIL-SAFE: Check for replenishment every 3 minutes
-        setInterval(() => {
-            const { autoCreatePaidTournaments, autoCreateFreeTournaments, updateTournamentStatuses } = require('../controllers/tournament.controller');
-            autoCreatePaidTournaments().catch(()=>{});
-            autoCreateFreeTournaments().catch(()=>{});
-            updateTournamentStatuses().catch(()=>{});
+        setInterval(async () => {
+            try {
+                const { autoCreatePaidTournaments, autoCreateFreeTournaments, updateTournamentStatuses } = require('../controllers/tournament.controller');
+                await updateTournamentStatuses();
+                await autoCreatePaidTournaments();
+                await autoCreateFreeTournaments();
+            } catch (err) {
+                console.error('Error during periodic tournament replenishment:', err);
+            }
         }, 3 * 60 * 1000);
 
-        // RECOVERY: Recover any stuck tournaments from previous session
-        this.recoverStuckTournaments()
-            .then(() => console.log('✅ TournamentManager recovery complete.'))
-            .catch(err => console.error('❌ Recovery Error:', err));
+        // Run recovery and auto-replenishment immediately on startup
+        this.startupReplenish()
+            .then(() => console.log('✅ TournamentManager startup replenishment and recovery complete.'))
+            .catch(err => console.error('❌ TournamentManager startup replenishment failed:', err));
     }
 
     static async pollLiveTournaments() {
@@ -713,13 +717,80 @@ class TournamentManager {
     }
 
     static async recoverStuckTournaments() {
-        const { data: stuck } = await supabase.from('tournaments').select('*').in('status', ['full', 'starting']).eq('type', 'paid');
-        if (!stuck) return;
-        for (const t of stuck) {
-            if (new Date() >= new Date(t.start_time)) {
-                await this.pickupTournament(t.id);
-                await this.transitionToLive(t.id);
+        console.log('🔄 Checking for interrupted/stuck/expired tournaments to cancel and refund...');
+        try {
+            const now = new Date().toISOString();
+            
+            // 1. Find all paid tournaments that are full, locked, starting, or live
+            // These were in-progress but got interrupted by server restart/sleep.
+            const { data: activePaid } = await supabase.from('tournaments')
+                .select('id, name, status')
+                .eq('type', 'paid')
+                .in('status', ['full', 'locked', 'starting', 'live']);
+            
+            // 2. Find any upcoming paid tournaments that have expired (start_time in the past)
+            const { data: expiredUpcomingPaid } = await supabase.from('tournaments')
+                .select('id, name, status')
+                .eq('type', 'paid')
+                .eq('status', 'upcoming')
+                .lte('start_time', now);
+            
+            const toCancel = [];
+            if (activePaid) toCancel.push(...activePaid);
+            if (expiredUpcomingPaid) toCancel.push(...expiredUpcomingPaid);
+
+            if (toCancel.length > 0) {
+                const SYSTEM_AUTO_CLEANUP_ID = '00000000-0000-0000-0000-000000000000';
+                for (const t of toCancel) {
+                    console.log(`⚠️ Cancelling tournament ${t.name} (ID: ${t.id}, Status: ${t.status}) and refunding players...`);
+                    try {
+                        const { data: resCancel, error: cancelErr } = await supabase.rpc('cancel_tournament_atomic', {
+                            p_tournament_id: t.id,
+                            p_admin_id: SYSTEM_AUTO_CLEANUP_ID
+                        });
+                        if (cancelErr) {
+                            console.error(`❌ Failed to cancel tournament ${t.id}:`, cancelErr.message);
+                        } else {
+                            console.log(`✅ Tournament ${t.id} successfully cancelled. Result:`, resCancel);
+                        }
+                    } catch (err) {
+                        console.error(`❌ Exception cancelling tournament ${t.id}:`, err);
+                    }
+                }
             }
+        } catch (err) {
+            console.error('Error recovering stuck tournaments:', err);
+        }
+    }
+
+    static async startupReplenish() {
+        console.log('🔄 Executing Startup Recovery & Replenish Flow...');
+        
+        // 1. Cancel and refund stuck/expired paid tournaments
+        try {
+            await this.recoverStuckTournaments();
+        } catch (e) {
+            console.error('Error in recoverStuckTournaments on startup:', e);
+        }
+
+        const { autoCreatePaidTournaments, autoCreateFreeTournaments, updateTournamentStatuses } = require('../controllers/tournament.controller');
+
+        // 2. Immediately update existing tournament statuses (moves old upcoming free tournaments out of the way)
+        try {
+            console.log('🔄 Syncing tournament statuses...');
+            await updateTournamentStatuses();
+        } catch (e) {
+            console.error('Error updating tournament statuses on startup:', e);
+        }
+
+        // 3. Immediately auto-create fresh upcoming tournaments for all times and types
+        try {
+            console.log('🏆 Replenishing upcoming paid and free tournaments...');
+            await autoCreatePaidTournaments();
+            await autoCreateFreeTournaments();
+            console.log('✅ Startup Recovery & Replenish Flow successfully completed!');
+        } catch (e) {
+            console.error('Error replenishing tournaments on startup:', e);
         }
     }
 }
