@@ -26,8 +26,31 @@
     .search-bar { position: relative; margin-bottom: 16px; }
     .text-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     @media (max-width: 480px) {
-      .top3-card { max-width: 100px; padding: 14px 8px; }
-      .top3-card.first { transform: translateY(-4px); }
+      .top3-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px 10px !important;
+      }
+      .top3-card {
+        max-width: 100% !important;
+        padding: 14px 8px !important;
+      }
+      .top3-card.first {
+        grid-column: span 2 !important;
+        order: 1 !important;
+        transform: none !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 160px !important;
+      }
+      .top3-card.second {
+        grid-column: span 1 !important;
+        order: 2 !important;
+      }
+      .top3-card.third {
+        grid-column: span 1 !important;
+        order: 3 !important;
+      }
       .top3-iq { font-size: 14px; }
     }
 
@@ -251,11 +274,17 @@ function renderList(players) {
 
     return `<div class="lb-row ${isMe ? 'me' : ''}">
       <div class="lb-rank ${rankColors[i] || ''}">${i < 3 ? medals[i] : p.rank}</div>
-      <div class="lb-row-shield" id="${shieldId}"></div>
-      <div class="avatar-initial" style="width:36px;height:36px;font-size:14px;flex-shrink:0">${avatarHtml}</div>
-      <div style="flex:1;min-width:0">
-        <div class="text-truncate" style="font-weight:600;font-size:13px">${displayName}${isMe ? ' <span style="color:var(--gold);font-size:11px">(You)</span>' : ''}</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:1px">${p.rank_badge || ''}</div>
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="avatar-initial" style="width:36px;height:36px;font-size:14px;flex-shrink:0;margin:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:50%">${avatarHtml}</div>
+          <div class="lb-row-shield" id="${shieldId}" style="margin:0"></div>
+        </div>
+        <div class="text-truncate" style="font-weight:600;font-size:13px;color:var(--text-primary)">
+          ${displayName}${isMe ? ' <span style="color:var(--gold);font-size:11px">(You)</span>' : ''}
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);writing-mode:vertical-rl;text-orientation:mixed;margin:0 4px;text-transform:uppercase;letter-spacing:1px;font-weight:700;flex-shrink:0;">
+        ${p.rank_badge || ''}
       </div>
       <div style="flex-shrink:0;margin-right:4px">${friendBtn}</div>
       <div style="text-align:right;width:70px;flex-shrink:0;display:flex;gap:4px;justify-content:flex-end;align-items:center;">
