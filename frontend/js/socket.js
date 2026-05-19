@@ -81,7 +81,7 @@ const initSocket = () => {
       }
 
       if (typeof Toast !== 'undefined') {
-          Toast.info(`<i class="fa-solid fa-chess-pawn"></i> New Challenge from ${data.fromUsername}! <br> <a href="/pages/friends.html" style="color:var(--gold);text-decoration:underline">Go to Social page to accept</a>`, 8000);
+          Toast.info(`<i class="fa-solid fa-chess-pawn"></i> New Challenge from ${data.fromUsername}! <br> <a href="/pages/friends.html?tab=challenges" style="color:var(--gold);text-decoration:underline">Go to Social page to accept</a>`, 8000);
       }
 
       // Update social page list instantly if open

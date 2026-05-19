@@ -19,14 +19,24 @@ const submitReport = async (req, res) => {
         const buffer = Buffer.from(base64Data, 'base64');
         const filename = `${uuidv4()}.${fileExt}`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        let { data: uploadData, error: uploadError } = await supabase.storage
           .from('screenshots')
           .upload(filename, buffer, {
             contentType: `image/${fileExt}`,
             upsert: false
           });
 
-        if (uploadError) throw uploadError;
+        if (uploadError && uploadError.message.includes('not found')) {
+          await supabase.storage.createBucket('screenshots', { public: true });
+          await supabase.storage.updateBucket('screenshots', { public: true });
+          const retry = await supabase.storage.from('screenshots').upload(filename, buffer, {
+            contentType: `image/${fileExt}`,
+            upsert: false
+          });
+          if (retry.error) throw retry.error;
+        } else if (uploadError) {
+          throw uploadError;
+        }
 
         const { data: publicUrlData } = supabase.storage
           .from('screenshots')

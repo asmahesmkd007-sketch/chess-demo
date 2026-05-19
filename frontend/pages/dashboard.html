@@ -925,8 +925,20 @@ document.getElementById('dash-kyc-badge').innerHTML = kycBadgeMap[user.kyc_statu
     }
 
     function handleNotifClick(n) {
-      const routes = { challenge: '/pages/friends.html', friend_request: '/pages/friends.html', withdraw: '/pages/wallet.html', kyc: '/pages/account.html' };
-      const route = routes[n.type] || (n.title?.includes('Challenge') ? '/pages/friends.html' : n.title?.includes('KYC') ? '/pages/account.html' : null);
+      const routes = {
+        challenge: '/pages/friends.html?tab=challenges',
+        friend_request: '/pages/friends.html?tab=requests',
+        clan_invite: '/pages/friends.html?tab=clan',
+        clan_request: '/pages/clan-war.html',
+        clan_accept: '/pages/clan-war.html',
+        withdraw: '/pages/wallet.html',
+        kyc: '/pages/account.html'
+      };
+      const route = routes[n.type] || (
+        n.title?.toLowerCase().includes('challenge') ? '/pages/friends.html?tab=challenges' :
+        n.title?.toLowerCase().includes('kyc') ? '/pages/account.html' :
+        n.title?.toLowerCase().includes('clan') ? '/pages/clan-war.html' : null
+      );
       if (route) window.location.href = route;
     }
 

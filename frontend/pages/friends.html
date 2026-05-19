@@ -497,6 +497,14 @@
     // Initial Load
     loadRequests();
     loadFriends();
+
+    // Check URL parameters for tab
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab');
+    if (initialTab && ['list', 'requests', 'challenges', 'clan', 'add'].includes(initialTab)) {
+      switchTab(initialTab);
+    }
+
     // Poll every 15s — store interval ID so it can be cleared if needed
     const _pollInterval = setInterval(() => { loadRequests(); loadFriends(); }, 15000);
     // Clean up on page unload to prevent memory leaks

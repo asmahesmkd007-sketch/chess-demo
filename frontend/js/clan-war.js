@@ -39,6 +39,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (typeof updateSidebarUI === 'function') updateSidebarUI(currentUser);
   }
 
+  // Initialize socket connection for active status synchronization
+  if (typeof initSocket === 'function') {
+    const sock = initSocket();
+    if (sock) {
+      sock.on('authenticated', () => {
+        loadPage(); // Sync page when authenticated (updates 'is_online' database state)
+      });
+      sock.on('silent_notification', () => {
+        loadPage(); // Sync on silent system notifications
+      });
+    }
+  }
+
   await loadPage();
 });
 
@@ -347,13 +360,20 @@ function renderMembersTab(el) {
           ${members.map(m => {
             const p = m.profiles || {};
             const name = p.username || 'Unknown';
-            const av = p.profile_image ? `<img src="${p.profile_image}">` : name[0]?.toUpperCase();
+            const username = fmt.username(name);
+            const fullName = p.full_name || '';
+            const av = p.profile_image ? `<img src="${p.profile_image}">` : (fullName || name)[0]?.toUpperCase();
             const isMe = p.id === currentUser?.id;
             return `
               <tr>
                 <td>
-                  <div class="member-avatar-sm">${av}</div>
-                  ${esc(name)}${isMe ? ' <span style="color:var(--gold);font-size:10px">(you)</span>' : ''}
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div class="member-avatar-sm">${av}</div>
+                    <div>
+                      <div style="font-weight:700;color:var(--text-primary)">${fullName ? esc(fullName) : esc(username)}${isMe ? ' <span style="color:var(--gold);font-size:10px;font-weight:400">(you)</span>' : ''}</div>
+                      ${fullName ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px">${esc(username)}</div>` : ''}
+                    </div>
+                  </div>
                 </td>
                 <td><span class="role-badge ${m.role}">${getRoleLabel(m.role)}</span></td>
                 <td><span class="online-dot ${p.is_online?'online':''}"></span>${p.is_online?'Online':'Offline'}</td>
