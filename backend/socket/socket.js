@@ -121,8 +121,8 @@ module.exports = (io) => {
             turn: game.chess.turn(),
             myColor: isP1 ? 'white' : 'black',
             opponent: isP1 ? 
-              { username: game.player2.username, full_name: game.player2.full_name, userId: game.player2.userId, rank: game.player2.rank, profile_image: game.player2.profile_image } : 
-              { username: game.player1.username, full_name: game.player1.full_name, userId: game.player1.userId, rank: game.player1.rank, profile_image: game.player1.profile_image }
+              { username: game.player2.username, full_name: game.player2.full_name, userId: game.player2.userId, rank: game.player2.rank, profile_image: game.player2.profile_image, iq_level: game.player2.iq_level } : 
+              { username: game.player1.username, full_name: game.player1.full_name, userId: game.player1.userId, rank: game.player1.rank, profile_image: game.player1.profile_image, iq_level: game.player1.iq_level }
           });
         }
       }
@@ -935,7 +935,7 @@ module.exports = (io) => {
     
     try {
       // Fetch IQs, Ranks, and Avatars for both players
-      const { data: profiles } = await supabase.from('profiles').select('id, iq_level, rank, profile_image').in('id', [p1.userId, p2.userId]);
+      const { data: profiles } = await supabase.from('profiles').select('id, iq_level, rank, profile_image, full_name').in('id', [p1.userId, p2.userId]);
       const profileMap = {};
       if (profiles) profiles.forEach(p => profileMap[p.id] = p);
 
@@ -1019,13 +1019,13 @@ module.exports = (io) => {
         match_type: matchType,
         tournamentId: p2.tournamentId || p1.tournamentId || null,
         player1: { 
-          userId: p1.userId, username: p1.username, full_name: p1.full_name || p1.username, socketId: p1.socketId, time: t * 60, 
+          userId: p1.userId, username: p1.username, full_name: profileMap[p1.userId]?.full_name || p1.full_name || p1.username, socketId: p1.socketId, time: t * 60, 
           iq_level: profileMap[p1.userId]?.iq_level || 100, 
           rank: profileMap[p1.userId]?.rank || 'Bronze',
           profile_image: profileMap[p1.userId]?.profile_image
         },
         player2: { 
-          userId: p2.userId, username: p2.username, full_name: p2.full_name || p2.username, socketId: p2.socketId || socket.id, time: t * 60, 
+          userId: p2.userId, username: p2.username, full_name: profileMap[p2.userId]?.full_name || p2.full_name || p2.username, socketId: p2.socketId || socket.id, time: t * 60, 
           iq_level: profileMap[p2.userId]?.iq_level || 100,
           rank: profileMap[p2.userId]?.rank || 'Bronze',
           profile_image: profileMap[p2.userId]?.profile_image

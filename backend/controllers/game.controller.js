@@ -116,7 +116,17 @@ const getMatchById = async (req, res) => {
       .eq('id', req.params.id)
       .single();
     if (!match) return res.status(404).json({ success: false, message: 'Match not found.' });
-    res.json({ success: true, match });
+
+    // Map p1 and p2 to player1_id and player2_id to match the consistent structure returned by getMatchHistory
+    const mappedMatch = {
+      ...match,
+      player1_id: match.p1,
+      player2_id: match.p2,
+      p1: undefined,
+      p2: undefined
+    };
+
+    res.json({ success: true, match: mappedMatch });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error.' });
   }

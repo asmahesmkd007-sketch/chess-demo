@@ -71,7 +71,7 @@ class TournamentManager {
         if (t.timer_type === 3 || t.timer_type === 5) maxPlayers = 32;
 
         let { data: players, error: pError } = await supabase.from('tournament_players')
-            .select('*, profiles(username, rank, full_name)').eq('tournament_id', tournamentId)
+            .select('*, profiles(username, rank, full_name, profile_image, iq_level)').eq('tournament_id', tournamentId)
             .order('joined_at', { ascending: true })
             .limit(maxPlayers);
         
@@ -80,7 +80,10 @@ class TournamentManager {
         const playersData = players.map((p, i) => ({
             user_id: p.user_id, username: p.profiles?.username || 'Unknown',
             full_name: p.profiles?.full_name || p.profiles?.username || 'Unknown',
-            rank: p.profiles?.rank || 'Bronze', score: 0, status: 'alive', slot: i + 1
+            rank: p.profiles?.rank || 'Bronze',
+            profile_image: p.profiles?.profile_image || null,
+            iq_level: p.profiles?.iq_level || 100,
+            score: 0, status: 'alive', slot: i + 1
         }));
 
         this.startTournament(tournamentId, playersData, t);
@@ -322,8 +325,14 @@ class TournamentManager {
             connectTimeout: tState.timer === 5 ? 300 : 60,
             chess: new Chess(),
             turn: 'w',
-            player1: { userId: p1.user_id, time: timePerPlayer, socketId: [...s1][0], score: 0, connected: p1Online },
-            player2: { userId: p2.user_id, time: timePerPlayer, socketId: [...s2][0], score: 0, connected: p2Online },
+            player1: { 
+                userId: p1.user_id, time: timePerPlayer, socketId: [...s1][0], score: 0, connected: p1Online,
+                username: p1.username, full_name: p1.full_name, rank: p1.rank, profile_image: p1.profile_image, iq_level: p1.iq_level
+            },
+            player2: { 
+                userId: p2.user_id, time: timePerPlayer, socketId: [...s2][0], score: 0, connected: p2Online,
+                username: p2.username, full_name: p2.full_name, rank: p2.rank, profile_image: p2.profile_image, iq_level: p2.iq_level
+            },
             winnerId: null,
             timer_type: timerType, // BUG-04: Add timer_type to match object for handleDisconnect
             fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
@@ -640,8 +649,8 @@ class TournamentManager {
             white_time: match.player1.time, black_time: match.player2.time,
             color: match.player1.userId === userId ? 'white' : 'black',
             opponent: match.player1.userId === userId ? 
-                { ...match.player2, username: match.player2.username } : 
-                { ...match.player1, username: match.player1.username },
+                { ...match.player2, userId: match.player2.userId, id: match.player2.userId } : 
+                { ...match.player1, userId: match.player1.userId, id: match.player1.userId },
             p1_score: match.player1.score, p2_score: match.player2.score
         });
 
@@ -655,8 +664,8 @@ class TournamentManager {
             turn: match.chess.turn(),
             myColor: match.player1.userId === userId ? 'white' : 'black',
             opponent: match.player1.userId === userId ? 
-                { userId: match.player2.userId, username: match.player2.username } : 
-                { userId: match.player1.userId, username: match.player1.username }
+                { userId: match.player2.userId, username: match.player2.username, full_name: match.player2.full_name, profile_image: match.player2.profile_image, iq_level: match.player2.iq_level, rank: match.player2.rank } : 
+                { userId: match.player1.userId, username: match.player1.username, full_name: match.player1.full_name, profile_image: match.player1.profile_image, iq_level: match.player1.iq_level, rank: match.player1.rank }
         });
         return true;
     }
