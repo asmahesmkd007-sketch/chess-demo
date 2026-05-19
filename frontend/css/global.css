@@ -156,8 +156,6 @@ html.theme-transitioning *::after {
 /* ── Sidebar ── */
 [data-theme="light"] .sidebar {
   background: rgba(255,255,255,0.97);
-  border-right: 1px solid #f4f4f8;
-  box-shadow: 2px 0 12px #f4f4f8;
 }
 [data-theme="light"] .sidebar-logo .brand { color: #0e0e1a; }
 [data-theme="light"] .sidebar-logo .tagline { color: var(--text-muted); }
