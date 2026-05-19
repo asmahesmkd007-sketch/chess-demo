@@ -254,6 +254,23 @@ CREATE TABLE IF NOT EXISTS clan_join_requests (
 );
 
 -- ─── 7. SOCIAL & SUPPORT ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS friends (
+  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user1_id        UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user2_id        UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user1_id, user2_id)
+);
+
+CREATE TABLE IF NOT EXISTS friend_requests (
+  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  sender_id       UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  receiver_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  status          TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected')),
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(sender_id, receiver_id)
+);
+
 CREATE TABLE IF NOT EXISTS game_challenges (
   id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   from_user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -561,6 +578,15 @@ ALTER TABLE game_challenges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feedbacks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE friends ENABLE ROW LEVEL SECURITY;
+ALTER TABLE friend_requests ENABLE ROW LEVEL SECURITY;
+
+-- Social & Support Policies
+DROP POLICY IF EXISTS "friends_select" ON friends;
+CREATE POLICY "friends_select" ON friends FOR SELECT USING (auth.uid() = user1_id OR auth.uid() = user2_id);
+
+DROP POLICY IF EXISTS "friend_requests_select" ON friend_requests;
+CREATE POLICY "friend_requests_select" ON friend_requests FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
 
 -- Profiles Policies
 DROP POLICY IF EXISTS "profiles_select" ON profiles;
