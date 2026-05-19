@@ -166,6 +166,7 @@ function renderClanDashboard() {
     ${lineupModal()}
     ${warHistoryModal()}
     ${searchClanModal()}
+    ${inviteMemberModal()}
   `;
 
   loadPendingWars();
@@ -1069,18 +1070,70 @@ async function confirmTransferLeadership(userId, name) {
   }
 }
 
-async function openInviteMemberPrompt() {
-  const username = prompt('Enter player @username to invite:');
-  if (!username) return;
-  
-  const cleanUsername = username.trim();
-  if (!cleanUsername) return;
+function inviteMemberModal() {
+  return `
+    <div class="cw-modal-overlay" id="invite-member-modal">
+      <div class="cw-modal" style="max-width:400px">
+        <div class="cw-modal-header">
+          <div class="cw-modal-title"><i class="fa-solid fa-user-plus" style="color:var(--gold);margin-right:8px"></i>Invite Player</div>
+          <button class="cw-modal-close" onclick="closeModal('invite-member-modal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cw-form-group">
+          <label class="cw-form-label">Player @username <span style="color:var(--error)">*</span></label>
+          <input class="cw-form-input" id="invite-username-input"
+            placeholder="e.g. @playername">
+        </div>
+        <button class="btn btn-primary" id="invite-member-btn" style="width:100%" onclick="submitInviteMember()">
+          <i class="fa-solid fa-paper-plane"></i> Send Invite
+        </button>
+        <div id="invite-member-error" style="display:none;margin-top:12px;padding:10px 14px;background:var(--error-bg);border:1px solid rgba(251,113,133,0.3);border-radius:10px;font-size:13px;color:var(--error)"></div>
+      </div>
+    </div>`;
+}
 
-  const res = await ClanAPI.inviteMember(cleanUsername);
-  if (res.success) {
-    Toast.success('Invitation sent to ' + cleanUsername);
-  } else {
-    Toast.error(res.message || 'Failed to send invitation.');
+function openInviteMemberPrompt() {
+  openModal('invite-member-modal');
+  setTimeout(() => {
+    const inp = document.getElementById('invite-username-input');
+    const err = document.getElementById('invite-member-error');
+    const btn = document.getElementById('invite-member-btn');
+    if (inp) inp.value = '';
+    if (err) { err.style.display = 'none'; err.textContent = ''; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Invite'; }
+  }, 50);
+}
+
+async function submitInviteMember() {
+  const err = document.getElementById('invite-member-error');
+  if (err) { err.style.display = 'none'; err.textContent = ''; }
+
+  const inp = document.getElementById('invite-username-input');
+  const btn = document.getElementById('invite-member-btn');
+  const username = inp?.value?.trim() || '';
+  if (!username) {
+    if (err) { err.textContent = 'Please enter a username.'; err.style.display = 'block'; }
+    inp?.focus();
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Inviting...';
+  }
+
+  try {
+    const res = await ClanAPI.inviteMember(username);
+    if (res && res.success) {
+      Toast.success('Invitation sent to ' + username);
+      closeModal('invite-member-modal');
+    } else {
+      const msg = res?.message || 'Failed to send invitation.';
+      if (err) { err.textContent = msg; err.style.display = 'block'; }
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Invite'; }
+    }
+  } catch (e) {
+    if (err) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Invite'; }
   }
 }
 
@@ -1114,13 +1167,20 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Submit create-clan form on Enter key
+// Submit forms on Enter key
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
-    const modal = document.getElementById('create-clan-modal');
-    if (modal && modal.classList.contains('open')) {
+    const createModal = document.getElementById('create-clan-modal');
+    if (createModal && createModal.classList.contains('open')) {
       e.preventDefault();
       submitCreateClan();
+      return;
+    }
+    const inviteModal = document.getElementById('invite-member-modal');
+    if (inviteModal && inviteModal.classList.contains('open')) {
+      e.preventDefault();
+      submitInviteMember();
+      return;
     }
   }
   if (e.key === 'Escape') {
