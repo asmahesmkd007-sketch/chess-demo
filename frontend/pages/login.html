@@ -36,25 +36,25 @@
     .bg-orb {
       position: absolute; border-radius: 50%;
       filter: blur(100px); opacity: 0;
-      animation: orb-appear 100s ease forwards;
+      animation: orb-appear 1.2s ease forwards;
     }
     .bg-orb-1 {
       width: 600px; height: 600px;
       background: radial-gradient(circle, rgba(232,197,71,0.12), transparent 70%);
       top: -200px; right: -100px;
-      animation-delay: 50s;
+      animation-delay: 0.2s;
     }
     .bg-orb-2 {
       width: 500px; height: 500px;
       background: radial-gradient(circle, rgba(124,111,205,0.1), transparent 70%);
       bottom: -150px; left: -100px;
-      animation-delay: 10ms;
+      animation-delay: 0.5s;
     }
     .bg-orb-3 {
       width: 300px; height: 300px;
       background: radial-gradient(circle, rgba(232,197,71,0.06), transparent 70%);
       top: 40%; left: 35%;
-      animation-delay: 10ms;
+      animation-delay: 0.8s;
     }
     @keyframes orb-appear {
       to { opacity: 1; }
@@ -172,6 +172,7 @@
     .orbit-logo {
       height: 75px; position: relative; z-index: 2;
       filter: drop-shadow(0 0 20px rgba(232,197,71,0.4));
+      animation: logo-float 4s ease-in-out infinite;
     }
     @keyframes logo-float {
       0%, 100% { transform: translateY(0) scale(1); }
@@ -186,13 +187,13 @@
       content: ''; position: absolute; border-radius: 50%;
     }
     
-    .ring-1 { width: 110px; height: 110px; animation: orbit-spin-r 30s linear infinite; border: 1px solid rgba(232,197,71,0.15); }
+    .ring-1 { width: 110px; height: 110px; animation: orbit-spin-r 12s linear infinite; border: 1px solid rgba(232,197,71,0.15); }
     .ring-1::after { width: 5px; height: 5px; top: -3px; left: 50%; transform: translateX(-50%); background: var(--gold); box-shadow: 0 0 10px var(--gold); }
     
-    .ring-2 { width: 140px; height: 140px; animation: orbit-spin-l 45s linear infinite; border: 1px solid rgba(124,111,205,0.15); }
+    .ring-2 { width: 140px; height: 140px; animation: orbit-spin-l 18s linear infinite; border: 1px solid rgba(124,111,205,0.15); }
     .ring-2::after { width: 6px; height: 6px; right: -3px; top: 50%; transform: translateY(-50%); background: #7c6fcd; box-shadow: 0 0 10px #7c6fcd; }
     
-    .ring-3 { width: 170px; height: 170px; animation: orbit-spin-r 60s linear infinite; border: 1px dashed rgba(232,197,71,0.08); }
+    .ring-3 { width: 170px; height: 170px; animation: orbit-spin-r 24s linear infinite; border: 1px dashed rgba(232,197,71,0.08); }
     .ring-3::after { width: 3.5px; height: 3.5px; bottom: -2px; left: 50%; transform: translateX(-50%); background: #e2e8f0; box-shadow: 0 0 8px #e2e8f0; }
 
     @keyframes orbit-spin-r { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
