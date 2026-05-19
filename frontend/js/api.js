@@ -1,6 +1,10 @@
-const API_BASE = (window.location.port === '5500' || window.location.port === '3000') 
-  ? 'http://localhost:5000/api' 
-  : '/api';
+// ─── DYNAMIC BACKEND CONFIG ───────────────────────────────
+// When you deploy your backend on Railway, replace the placeholder URL with your actual Railway URL!
+window.BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5500' || window.location.port === '3000')
+  ? 'http://localhost:5000'
+  : 'https://chessox-demo-production.up.railway.app'; // <--- Live Railway URL updated!
+
+const API_BASE = `${window.BACKEND_URL}/api`;
 
 // ─── DYNAMIC CONFIG ───────────────────────────────────────
 let CONFIG = { supabase: { url: '', anon_key: '' } };

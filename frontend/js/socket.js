@@ -3,9 +3,7 @@ let _socket = null;
 const initSocket = () => {
   if (_socket && _socket.connected) return _socket;
 
-  const socketUrl = (window.location.port === '5500' || window.location.port === '3000')
-    ? 'http://localhost:5000'
-    : window.location.origin;
+  const socketUrl = window.BACKEND_URL || 'http://localhost:5000';
 
   _socket = io(socketUrl, {
     transports: ['websocket', 'polling'],
