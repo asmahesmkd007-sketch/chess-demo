@@ -67,6 +67,33 @@
     .search-input:focus { border-color: rgba(232,197,71,0.35); }
     .search-wrap .btn { width: auto; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-width: 640px) {
+      .friend-tabs {
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 10px 8px !important;
+        padding-bottom: 10px !important;
+        overflow-x: visible !important;
+      }
+      .friend-tab {
+        text-align: center;
+        padding-bottom: 6px !important;
+        font-size: 11.5px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+      }
+      .friend-tabs > *:nth-child(1),
+      .friend-tabs > *:nth-child(2),
+      .friend-tabs > *:nth-child(3) {
+        grid-column: span 2 !important;
+      }
+      .friend-tabs > *:nth-child(4),
+      .friend-tabs > *:nth-child(5) {
+        grid-column: span 3 !important;
+      }
+    }
     @media (max-width: 480px) {
       .friend-card { flex-wrap: wrap; gap: 10px; }
       .f-actions { width: 100%; justify-content: flex-end; }
