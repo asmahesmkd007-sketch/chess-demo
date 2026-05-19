@@ -196,7 +196,7 @@ const joinTournament = async (req, res) => {
 // ─── AUTO CREATE PAID TOURNAMENTS ──────────────────────────
 const autoCreatePaidTournaments = async () => {
   try {
-    const entries = [5, 10, 20, 30, 50, 80, 100, 200, 300, 500];
+    const entries = [5, 10, 20, 30, 50, 80, 100, 200, 500];
     const types = [
       { timer: 1, max: 16, suffix: '1 Min Knockout TR' },
       { timer: 3, max: 16, suffix: '3 Min Paid TR' },
