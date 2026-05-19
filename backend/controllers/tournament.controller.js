@@ -13,10 +13,13 @@ const getTournaments = async (req, res) => {
     
     if (status) {
         // BUG: Status whitelist to prevent DB probing
-        const validStatuses = ['upcoming', 'filling', 'live', 'completed', 'cancelled', 'full', 'starting', 'locked'];
+        const validStatuses = ['all', 'upcoming', 'filling', 'live', 'completed', 'cancelled', 'full', 'starting', 'locked'];
         if (!validStatuses.includes(status)) return res.status(400).json({ success: false, message: 'Invalid status filter.' });
 
-        if (status === 'upcoming') {
+        if (status === 'all') {
+            query = query.in('status', ['upcoming', 'full', 'starting', 'live', 'locked']);
+        }
+        else if (status === 'upcoming') {
             query = query.in('status', ['upcoming', 'full', 'starting', 'locked']);
             if (type === 'free') {
                 query = query.gt('start_time', new Date().toISOString());
