@@ -356,9 +356,6 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  if (!window.location.pathname.includes('login.html')) {
-    showInstallPrompt();
-  }
 });
 
 function showInstallPrompt(onCloseCallback) {
