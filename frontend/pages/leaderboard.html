@@ -278,15 +278,12 @@ function renderList(players) {
         <div style="display:flex; align-items:center; gap:8px;">
           <div class="avatar-initial" style="width:36px;height:36px;font-size:14px;flex-shrink:0;margin:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:50%">${avatarHtml}</div>
           <div class="lb-row-shield" id="${shieldId}" style="margin:0"></div>
+          <div style="margin-left:2px">${friendBtn}</div>
         </div>
-        <div class="text-truncate" style="font-weight:600;font-size:13px;color:var(--text-primary)">
+        <div style="font-weight:600;font-size:13px;color:var(--text-primary);word-break:break-word;line-height:1.25">
           ${displayName}${isMe ? ' <span style="color:var(--gold);font-size:11px">(You)</span>' : ''}
         </div>
       </div>
-      <div style="font-size:10px;color:var(--text-muted);writing-mode:vertical-rl;text-orientation:mixed;margin:0 4px;text-transform:uppercase;letter-spacing:1px;font-weight:700;flex-shrink:0;">
-        ${p.rank_badge || ''}
-      </div>
-      <div style="flex-shrink:0;margin-right:4px">${friendBtn}</div>
       <div style="text-align:right;width:70px;flex-shrink:0;display:flex;gap:4px;justify-content:flex-end;align-items:center;">
         <div style="display:flex;flex-direction:column;align-items:center;"><i class="fa-solid fa-trophy" style="color:var(--gold);font-size:12px;"></i><div style="font-size:11px;font-weight:700;">${p.trophies?.gold||0}</div></div>
         <div style="display:flex;flex-direction:column;align-items:center;"><i class="fa-solid fa-trophy" style="color:#c0c0c0;font-size:12px;"></i><div style="font-size:11px;font-weight:700;">${p.trophies?.silver||0}</div></div>
