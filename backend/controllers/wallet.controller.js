@@ -1,5 +1,5 @@
 const { supabase } = require('../config/supabase');
-const { createOrder, verifySignature, fetchPayment } = require('../config/razorpay');
+const { initiatePhonePePayment, checkPhonePeTransactionStatus } = require('../config/phonepe');
 
 const getWallet = async (req, res) => {
   try {
@@ -22,54 +22,81 @@ const createDepositOrder = async (req, res) => {
         return res.status(403).json({ success: false, message: 'KYC verification required to deposit money.' });
     }
 
+    const transactionId = `TXN_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
+
     // 1. Create a pending transaction record
     const { data: txn, error: insErr } = await supabase.from('transactions').insert({
       user_id: req.user.id,
       type: 'deposit',
       amount,
       status: 'pending',
-      reference_id: `dep_init_${Date.now()}`
+      reference_id: transactionId
     }).select().single();
 
     if (insErr) throw insErr;
 
-    // 2. Create Razorpay Order
-    const order = await createOrder({ amount, receipt: `txn_${txn.id}` });
+    // 2. Create PhonePe Hosted Payment
+    const origin = req.headers.origin || req.headers.referer || 'http://localhost:3000';
+    const cleanOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+    const redirectUrl = `${cleanOrigin}/pages/wallet.html?merchantTransactionId=${transactionId}`;
+    const callbackUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/wallet/deposit/phonepe-webhook`;
+
+    const paymentResult = await initiatePhonePePayment({
+      transactionId,
+      userId: req.user.id,
+      amount,
+      redirectUrl,
+      callbackUrl
+    });
 
     res.json({
       success: true,
-      key_id: process.env.RAZORPAY_KEY_ID,
-      order: { id: order.id, amount: order.amount, currency: order.currency }
+      redirectUrl: paymentResult.redirectUrl,
+      merchantTransactionId: transactionId
     });
   } catch (err) {
     console.error('Deposit order error:', err);
-    res.status(500).json({ success: false, message: 'Failed to create payment order.' });
+    res.status(500).json({ success: false, message: err.message || 'Failed to create PhonePe payment order.' });
   }
 };
 
 const verifyDeposit = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { merchantTransactionId } = req.body;
+    if (!merchantTransactionId) return res.status(400).json({ success: false, message: 'Transaction ID is required.' });
 
-    // 1. Verify Signature
-    const isValid = verifySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
-    if (!isValid) return res.status(400).json({ success: false, message: 'Invalid payment signature.' });
-
-    // 2. Double check with Razorpay (Security)
-    const payment = await fetchPayment(razorpay_payment_id);
-    if (payment.status !== 'captured' && payment.status !== 'authorized') {
-        return res.status(400).json({ success: false, message: 'Payment not captured.' });
+    // 1. Double check payment status directly with PhonePe (Secure server-to-server)
+    const verification = await checkPhonePeTransactionStatus(merchantTransactionId);
+    if (!verification.success) {
+      return res.status(400).json({ success: false, message: `Payment failed: ${verification.message || verification.code}` });
     }
 
-    const amountINR = payment.amount / 100;
+    const amountINR = verification.amount;
+    const providerReferenceId = verification.paymentId || merchantTransactionId;
 
-    // 3. Update balance and status ATOMICALLY via RPC
+    // 2. Update balance and status ATOMICALLY via RPC
     const { data: result, error: rpcErr } = await supabase.rpc('credit_wallet_deposit', {
       p_user_id: req.user.id,
       p_amount: amountINR,
-      p_payment_id: razorpay_payment_id,
-      p_order_id: razorpay_order_id
+      p_payment_id: providerReferenceId,
+      p_order_id: merchantTransactionId
     });
+
+    if (rpcErr) throw rpcErr;
+    if (!result.success) return res.status(400).json({ success: false, message: result.message });
+
+    // 3. Emit real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.to(req.user.id).emit('wallet_update', { balance: result.new_balance, type: 'deposit' });
+    }
+
+    res.json({ success: true, message: 'Coins credited successfully!', balance: result.new_balance });
+  } catch (err) {
+    console.error('Verify deposit error:', err);
+    res.status(500).json({ success: false, message: 'Verification error.' });
+  }
+};
 
     if (rpcErr) throw rpcErr;
     if (!result.success) return res.status(400).json({ success: false, message: result.message });

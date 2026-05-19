@@ -242,7 +242,7 @@
                                 <i class="fa-solid fa-shield-halved"></i> Secure Deposit
                             </button>
                             <p style="font-size: 10px; color: var(--text-muted); margin-top: 12px; text-align: center;">
-                                <i class="fa-solid fa-lock"></i> Secured by Razorpay 256-bit Encryption
+                                <i class="fa-solid fa-lock"></i> Secured by PhonePe 256-bit Encryption
                             </p>
                         </div>
 
@@ -304,7 +304,6 @@
 
     <div id="toast-container" class="toast-container"></div>
 
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/sidebar.js"></script>
     <script>
@@ -316,7 +315,35 @@
             loadWalletData();
             loadTransactions();
             checkKYCStatus();
+
+            // Check if returning from PhonePe payment page redirect
+            const urlParams = new URLSearchParams(window.location.search);
+            const txnId = urlParams.get('merchantTransactionId');
+            if (txnId) {
+                // Clear the query parameters from the URL for a clean state
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                
+                // Trigger PhonePe verification
+                verifyPhonePeDeposit(txnId);
+            }
         });
+
+        async function verifyPhonePeDeposit(txnId) {
+            Toast.info('Verifying payment with PhonePe...');
+            try {
+                const res = await WalletAPI.verifyDeposit({ merchantTransactionId: txnId });
+                if (res.success) {
+                    Toast.success('Deposit Successful! Coins added.');
+                    loadWalletData();
+                    loadTransactions();
+                } else {
+                    Toast.error(res.message || 'Payment verification failed');
+                }
+            } catch (err) {
+                Toast.error('Failed to verify payment status.');
+            }
+        }
 
         async function loadWalletData() {
             const res = await WalletAPI.getBalance();
@@ -395,41 +422,17 @@
 
             const btn = document.getElementById('btn-deposit');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Initializing...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Redirecting...';
 
             try {
                 const res = await WalletAPI.createDepositOrder(amt);
                 if (!res.success) throw new Error(res.message);
 
-                const options = {
-                    key: res.key_id,
-                    amount: res.order.amount,
-                    currency: res.order.currency,
-                    name: "CHESS OX",
-                    description: `Add ${amt} coins to wallet`,
-                    order_id: res.order.id,
-                    handler: async function (response) {
-                        Toast.info('Verifying payment...');
-                        const verifyRes = await WalletAPI.verifyDeposit(response);
-                        if (verifyRes.success) {
-                            Toast.success('Deposit Successful!');
-                            loadWalletData();
-                            loadTransactions();
-                        } else {
-                            Toast.error(verifyRes.message || 'Verification failed');
-                        }
-                    },
-                    prefill: {
-                        name: getUser()?.full_name || "",
-                        email: getUser()?.email || ""
-                    },
-                    theme: { color: "#E8C547" }
-                };
-                const rzp = new Razorpay(options);
-                rzp.open();
+                Toast.info('Redirecting to PhonePe...');
+                // Redirect user to the secure PhonePe hosted page
+                window.location.href = res.redirectUrl;
             } catch (err) {
                 Toast.error(err.message || 'Failed to start payment');
-            } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Secure Deposit';
             }
