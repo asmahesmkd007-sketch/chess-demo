@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { UserAPI, WalletAPI, GameAPI, TournamentAPI, FriendAPI } from "@/lib/api";
 import { 
   Trophy, 
@@ -12,9 +13,15 @@ import {
   TrendingUp,
   Clock,
   ChevronRight,
-  User as UserIcon
+  User as UserIcon,
+  Users
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+const cn = (...inputs) => twMerge(clsx(inputs));
+
 
 const StatTile = ({ icon: Icon, label, value, sub, color, trend }) => (
   <motion.div 
